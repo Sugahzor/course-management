@@ -40,17 +40,19 @@ public class CourseService {
         }
     }
 
-    public List<Course> getCourses() {
-        List<Course> courseList = new ArrayList<>();
-        courseRepo.findAll().forEach(course -> courseList.add(course));
+    public List<CourseResponseDTO> getCourses() {
+        List<CourseResponseDTO> courseList = new ArrayList<>();
+        courseRepo.findAll().forEach(course -> {
+            UserDTO userDto = userMapper.toDto(course.getUser());
+            CourseResponseDTO courseResponse = courseMapper.toDto(course, userDto);
+            courseList.add(courseResponse);
+        });
         return courseList;
     }
 
     public void deleteCourse(Long id) {
-        System.out.println(id + "course id");
         Optional<Course> existingCourse = courseRepo.findById(id);
         if (existingCourse.isPresent()) {
-            System.out.println("Course found");
             courseRepo.delete(existingCourse.get());
         } else {
             //throw bad id error

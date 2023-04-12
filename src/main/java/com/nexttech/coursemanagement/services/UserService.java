@@ -33,9 +33,7 @@ public class UserService {
     public boolean login(UserLoginDTO userLoginDTO) {
         //TODO: handle exceptions - wrong key, etc
         //TODO: interpret exceptions in Controller
-        System.out.println(userLoginDTO.getUserEmail() + "wrong email");
         User loginUser = userRepo.findByUserEmail(userLoginDTO.getUserEmail());
-//        System.out.println(loginUser + "who is loginuser");-
         if (loginUser == null) {
 //            System.out.println(loginUser + "exception when email is wrong");
             System.out.println("User not found - please register or check email");

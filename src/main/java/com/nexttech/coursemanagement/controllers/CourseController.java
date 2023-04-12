@@ -22,15 +22,22 @@ public class CourseController {
     private CourseService courseService;
 
     @GetMapping
-    List<Course> getCourses() {
-        return courseService.getCourses();
+    List<CourseResponseDTO> getCourses() {
+        List<CourseResponseDTO> courseListResponse = courseService.getCourses();
+
+        for (final CourseResponseDTO course : courseListResponse) {
+            Link selfLink = linkTo(CourseController.class).slash(course.getId()).withSelfRel();
+            course.add(selfLink);
+        }
+        return courseListResponse;
+//        return courseService.getCourses();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     CourseResponseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) {
         CourseResponseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getUserId());
-        Link selfLink = linkTo(CourseController.class).slash(courseResponse.getId()).withSelfRel();
+            Link selfLink = linkTo(CourseController.class).slash(courseResponse.getId()).withSelfRel();
         courseResponse.add(selfLink);
         return courseResponse;
     }

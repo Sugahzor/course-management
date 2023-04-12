@@ -1,6 +1,8 @@
 package com.nexttech.coursemanagement.DTOs;
 
-public class UserDTO {
+import org.springframework.hateoas.RepresentationModel;
+
+public class UserDTO extends RepresentationModel<UserDTO> {
     Long id;
     String userName;
     String userEmail;
