@@ -1,7 +1,9 @@
 package com.nexttech.coursemanagement.services;
 
 import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
+import com.nexttech.coursemanagement.DTOs.UserDTO;
 import com.nexttech.coursemanagement.mappers.CourseMapper;
+import com.nexttech.coursemanagement.mappers.UserMapper;
 import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.CourseRepo;
@@ -19,7 +21,9 @@ public class CourseService {
     @Autowired
     private UserService userService;
     @Autowired
-    private CourseMapper mapper;
+    private CourseMapper courseMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     public CourseResponseDTO addCourse(String name, Long userId) {
         Course existingCourse = courseRepo.findByCourseName(name);
@@ -27,7 +31,8 @@ public class CourseService {
         if (existingCourse == null && existingUser != null) {
             Course newCourse = new Course(name, existingUser);
             courseRepo.save(newCourse);
-            CourseResponseDTO courseResponse = mapper.toDto(newCourse);
+            UserDTO userResponse = userMapper.toDto(existingUser);
+            CourseResponseDTO courseResponse = courseMapper.toDto(newCourse, userResponse);
             return courseResponse;
         } else {
             System.out.println("Course already exists.");
@@ -42,8 +47,10 @@ public class CourseService {
     }
 
     public void deleteCourse(Long id) {
+        System.out.println(id + "course id");
         Optional<Course> existingCourse = courseRepo.findById(id);
         if (existingCourse.isPresent()) {
+            System.out.println("Course found");
             courseRepo.delete(existingCourse.get());
         } else {
             //throw bad id error
