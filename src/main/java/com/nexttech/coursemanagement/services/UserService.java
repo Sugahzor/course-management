@@ -3,17 +3,16 @@ package com.nexttech.coursemanagement.services;
 import com.nexttech.coursemanagement.DTOs.UserLoginDTO;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.UserRepo;
-import com.nexttech.coursemanagement.util.ApiError;
-import com.nexttech.coursemanagement.util.CustomRestExceptionHandler;
+import com.nexttech.coursemanagement.util.BadRequestException;
+import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.util.Assert;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -21,34 +20,37 @@ public class UserService {
     @Autowired
     private UserRepo userRepo;
 
-    public void register(User user) {
-        User existingUser = userRepo.findByUserEmail(user.getUserEmail());
-        if(existingUser==null) {
+    public void register(User user) throws BadRequestException{
+        try {
+            Assert.isNull(userRepo.findByUserEmail(user.getUserEmail()), "User already exists");
             userRepo.save(user);
-        } else {
-            System.out.println("User is already in DB.");
+        }
+        catch(IllegalArgumentException exception) {
+            throw new BadRequestException(exception.getMessage());
         }
     }
 
-    public boolean login(UserLoginDTO userLoginDTO) {
-        //TODO: handle exceptions - wrong key, etc
-        //TODO: interpret exceptions in Controller
-        User loginUser = userRepo.findByUserEmail(userLoginDTO.getUserEmail());
-        if (loginUser == null) {
-//            System.out.println(loginUser + "exception when email is wrong");
-            System.out.println("User not found - please register or check email");
-            return false;
+    public void login(UserLoginDTO userLoginDTO) throws BadRequestException{
+        try {
+            User loginUser = userRepo.findByUserEmail(userLoginDTO.getUserEmail()); //shouldn't this throw IllegalArgumentException??
+            Assert.notNull(loginUser, "Email not found.");
+            if (userLoginDTO.getUserPassword().equals(loginUser.getUserPassword())) {
+                System.out.println("User login successful");
+            } else {
+                throw new BadRequestException("Please check password.");
+            }
         }
-        if (userLoginDTO.getUserPassword().equals(loginUser.getUserPassword())) {
-            System.out.println("User login successful");
-            return true;
-        } else {
-            System.out.println("Please check password.");
-            return false;
+        catch(IllegalArgumentException exception) {
+            System.out.println(exception.getMessage() + "IllegalArgumentException service");
+            throw new BadRequestException(exception.getLocalizedMessage());
+        }
+        catch(BadRequestException exception) {
+            throw new BadRequestException("Please check password.");
         }
     }
 
     public List<User> findUsers(Optional<String> role) {
+        //TODO: which exceptions can occur here except DB failure?
         if(role.isPresent()) {
             return userRepo.findUsersByRole(role.get());
         } else {
@@ -59,30 +61,26 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        Optional<User> user = userRepo.findById(id);
-        if(user.isPresent()) {
-            return user.get();
-        } else {
-//            https://howtodoinjava.com/spring5/webmvc/controller-getmapping-postmapping/
-//            throw new RecordNotFoundException();
-            throw new RuntimeException();
-//            return new ResponseEntity<String>("User not found", HttpStatus.BAD_REQUEST);
+        try {
+            Assert.notNull(id, "Id cannot be null");
+            return userRepo.findById(id).get();
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
+        catch(NoSuchElementException exception) {
+            System.out.println("NoSuchElementException catch: " + exception.getMessage());
+            throw exception;
         }
     }
 
-    public void deleteUser(Long id) throws Exception {
-        Optional<User> user = userRepo.findById(id);
-        if (user.isPresent()) {
-            //TODO debug : use wrong ID
+    public void deleteUser(Long id) {
+        try {
             userRepo.deleteById(id);
-        } else {
-            //TODO : find the correct way to throw Not found => this throws 500...not OK
-//          throw new ResponseEntityExceptionHandler("Id not found");
-//          Response response = givenAuth().delete(URL_PREFIX + "/api/xx");
-//          ApiError error = response.as(ApiError.class);
-            ApiError errorResponse = new ApiError(HttpStatus.NOT_FOUND, "id not found", "Please provide a valid id.");
-//          throw errorResponse
-            //create new exception handle class
+        }
+        catch(EmptyResultDataAccessException exception){
+            throw new MyResourceNotFoundException("User not found");
         }
     }
 

@@ -1,12 +1,9 @@
 package com.nexttech.coursemanagement.controllers;
 
 import com.nexttech.coursemanagement.DTOs.CourseCreationDTO;
-//import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
 import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
-import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.services.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
