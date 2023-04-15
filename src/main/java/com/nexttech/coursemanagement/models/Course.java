@@ -1,8 +1,6 @@
 package com.nexttech.coursemanagement.models;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 public class Course {

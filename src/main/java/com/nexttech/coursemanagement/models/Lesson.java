@@ -1,16 +1,14 @@
 package com.nexttech.coursemanagement.models;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
-    String lessonName;
-    Byte[] lessonContent;
+    String name;
+    Byte[] content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id", nullable = false)
@@ -18,27 +16,38 @@ public class Lesson {
 
     public Lesson() {}
 
-    public Lesson(Byte[] lessonContent) {
-        this.lessonContent = lessonContent;
+    public Lesson(String name, Byte[] content, User user) {
+
+        this.name = name;
+        this.content = content;
+        this.user = user;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getLessonName() {
-        return lessonName;
+    public String getName() {
+        return name;
     }
 
-    public void setLessonName(String lessonName) {
-        this.lessonName = lessonName;
+    public void setName(String lessonName) {
+        this.name = lessonName;
     }
 
-    public Byte[] getLessonContent() {
-        return lessonContent;
+    public Byte[] getContent() {
+        return content;
     }
 
-    public void setLessonContent(Byte[] lessonContent) {
-        this.lessonContent = lessonContent;
+    public void setContent(Byte[] lessonContent) {
+        this.content = lessonContent;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

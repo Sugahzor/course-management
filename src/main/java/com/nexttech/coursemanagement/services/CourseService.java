@@ -32,7 +32,7 @@ public class CourseService {
             Course newCourse = new Course(name, existingUser);
             courseRepo.save(newCourse);
             UserDTO userResponse = userMapper.toDto(existingUser);
-            CourseResponseDTO courseResponse = courseMapper.toDto(newCourse, userResponse);
+            CourseResponseDTO courseResponse = courseMapper.toDto(newCourse);
             return courseResponse;
         } else {
             System.out.println("Course already exists.");
@@ -43,11 +43,14 @@ public class CourseService {
     public List<CourseResponseDTO> getCourses() {
         List<CourseResponseDTO> courseList = new ArrayList<>();
         courseRepo.findAll().forEach(course -> {
-            UserDTO userDto = userMapper.toDto(course.getUser());
-            CourseResponseDTO courseResponse = courseMapper.toDto(course, userDto);
+            CourseResponseDTO courseResponse = courseMapper.toDto(course);
             courseList.add(courseResponse);
         });
         return courseList;
+    }
+
+    public Course getCourse(Long id) {
+        return courseRepo.findById(id).get();
     }
 
     public void deleteCourse(Long id) {

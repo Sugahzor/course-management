@@ -2,23 +2,21 @@ package com.nexttech.coursemanagement.DTOs;
 
 import org.springframework.hateoas.RepresentationModel;
 
-public class CourseResponseDTO extends RepresentationModel<CourseResponseDTO> {
+public class LessonDTO extends RepresentationModel<LessonDTO> {
     Long id;
     String name;
+    Byte[] content;
     Long userId;
 
-    public CourseResponseDTO(Long id, String name, Long userId) {
+    public LessonDTO(Long id, String name, Byte[] content, Long userId) {
         this.id = id;
         this.name = name;
+        this.content = content;
         this.userId = userId;
     }
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -27,6 +25,14 @@ public class CourseResponseDTO extends RepresentationModel<CourseResponseDTO> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Byte[] getContent() {
+        return content;
+    }
+
+    public void setContent(Byte[] content) {
+        this.content = content;
     }
 
     public Long getUserId() {
