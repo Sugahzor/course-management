@@ -1,11 +1,8 @@
 package com.nexttech.coursemanagement.services;
 
-import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
 import com.nexttech.coursemanagement.DTOs.LessonCreationDTO;
 import com.nexttech.coursemanagement.DTOs.LessonDTO;
-import com.nexttech.coursemanagement.DTOs.UserDTO;
 import com.nexttech.coursemanagement.mappers.LessonMapper;
-import com.nexttech.coursemanagement.mappers.UserMapper;
 import com.nexttech.coursemanagement.models.Lesson;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.LessonRepo;
@@ -22,15 +19,12 @@ public class LessonService {
     @Autowired
     private UserService userService;
     @Autowired
-    private UserMapper userMapper;
-    @Autowired
     private LessonMapper lessonMapper;
 
     public LessonDTO addLesson(LessonCreationDTO lessonCreationDTO) {
         User user = userService.getUserById(lessonCreationDTO.getUserId());
         Lesson lesson = new Lesson(lessonCreationDTO.getName(), lessonCreationDTO.getContent(), user);
         lessonRepo.save(lesson);
-        UserDTO userDto = userMapper.toDto(user);
         LessonDTO lessonResponse = lessonMapper.toDto(lesson);
         return lessonResponse;
     }

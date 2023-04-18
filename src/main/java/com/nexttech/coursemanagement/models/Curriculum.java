@@ -8,15 +8,15 @@ public class Curriculum {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="course_id", nullable = false)
     private Course course;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="lesson_id", nullable = false)
     private Lesson lesson;
 
-//    public Curriculum() {}
+    public Curriculum() {}
 
     public Curriculum(Course course, Lesson lesson) {
         this.course = course;

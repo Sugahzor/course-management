@@ -1,6 +1,6 @@
 package com.nexttech.coursemanagement.services;
 
-import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
+import com.nexttech.coursemanagement.DTOs.CourseDTO;
 import com.nexttech.coursemanagement.DTOs.UserDTO;
 import com.nexttech.coursemanagement.mappers.CourseMapper;
 import com.nexttech.coursemanagement.mappers.UserMapper;
@@ -25,14 +25,14 @@ public class CourseService {
     @Autowired
     private UserMapper userMapper;
 
-    public CourseResponseDTO addCourse(String name, Long userId) {
+    public CourseDTO addCourse(String name, Long userId) {
+        //TODO: accept lessons array
         Course existingCourse = courseRepo.findByCourseName(name);
         User existingUser = userService.getUserById(userId);
         if (existingCourse == null && existingUser != null) {
             Course newCourse = new Course(name, existingUser);
             courseRepo.save(newCourse);
-            UserDTO userResponse = userMapper.toDto(existingUser);
-            CourseResponseDTO courseResponse = courseMapper.toDto(newCourse);
+            CourseDTO courseResponse = courseMapper.toDto(newCourse);
             return courseResponse;
         } else {
             System.out.println("Course already exists.");
@@ -40,17 +40,18 @@ public class CourseService {
         }
     }
 
-    public List<CourseResponseDTO> getCourses() {
-        List<CourseResponseDTO> courseList = new ArrayList<>();
+    public Course getCourse(Long id) {
+        return courseRepo.findById(id).get();
+    }
+
+    public List<CourseDTO> getCourses() {
+        List<CourseDTO> courseList = new ArrayList<>();
         courseRepo.findAll().forEach(course -> {
-            CourseResponseDTO courseResponse = courseMapper.toDto(course);
+            //TODO: add lessons list
+            CourseDTO courseResponse = courseMapper.toDto(course);
             courseList.add(courseResponse);
         });
         return courseList;
-    }
-
-    public Course getCourse(Long id) {
-        return courseRepo.findById(id).get();
     }
 
     public void deleteCourse(Long id) {

@@ -47,6 +47,8 @@ public class UserController {
             throw new BadRequestException("Bad request - check that id is valid: " + exception.getMessage());
         }
         catch(NoSuchElementException exception) {
+            //TODO: check sending custom error messages
+            // https://spring.io/blog/2013/11/01/exception-handling-in-spring-mvc
             throw new MyResourceNotFoundException("User not found - custom message not sent in response.");
         }
     }
