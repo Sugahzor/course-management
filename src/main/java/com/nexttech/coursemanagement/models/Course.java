@@ -9,14 +9,6 @@ public class Course {
     Long id;
     String courseName;
 
-//TODO: add this for course-> lessons
-//    @ManyToMany(cascade = { CascadeType.ALL })
-//    @JoinTable(
-//            name = "Curriculum",
-//            joinColumns = { @JoinColumn(name = "course_id") },
-//            inverseJoinColumns = { @JoinColumn(name = "lesson_id") }
-//    )
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

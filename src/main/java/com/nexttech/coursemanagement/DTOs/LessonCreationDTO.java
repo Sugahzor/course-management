@@ -2,6 +2,9 @@ package com.nexttech.coursemanagement.DTOs;
 
 public class LessonCreationDTO {
     String name;
+    Byte[] content;
+    Long userId;
+
 
     public String getName() {
         return name;
@@ -26,7 +29,4 @@ public class LessonCreationDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
-    Byte[] content;
-    Long userId;
 }

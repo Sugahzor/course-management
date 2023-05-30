@@ -29,7 +29,6 @@ public class CourseController {
             course.add(selfLink);
         }
         return courseListResponse;
-//        return courseService.getCourses();
     }
 
     @GetMapping("/{id}")
@@ -46,6 +45,13 @@ public class CourseController {
         courseResponse.add(selfLink);
         return courseResponse;
     }
+
+//    @PutMapping
+//    @ResponseStatus(HttpStatus.OK)
+//    CourseDTO addLessonsToCourse(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
+//        CourseDTO courseWithLessonsResponse = courseService.addLessonsToCourse(curriculumCreationDTO);
+//        return courseWithLessonsResponse;
+//    }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)

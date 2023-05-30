@@ -1,16 +1,15 @@
 package com.nexttech.coursemanagement.controllers;
 
-import com.nexttech.coursemanagement.DTOs.CurriculumCreationDTO;
-import com.nexttech.coursemanagement.DTOs.CurriculumDTO;
-import com.nexttech.coursemanagement.models.Curriculum;
+import com.nexttech.coursemanagement.DTOs.*;
 import com.nexttech.coursemanagement.services.CurriculumService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 @RestController
 @RequestMapping("api/v1/curricula")
@@ -21,14 +20,41 @@ public class CurriculumController {
 
     @GetMapping
     @ResponseBody
-    public List<CurriculumDTO> getCurricula(@RequestParam(required = false)Optional<String> sortby)    {
-        return curriculumService.getCurricula(sortby);
+    public List<CurriculumResponseDTO> getCurricula()    {
+        List<CurriculumResponseDTO> curriculumResponseDTOList = curriculumService.getCurricula();
+        for(final CurriculumResponseDTO curriculumResponseDTO: curriculumResponseDTOList) {
+            Link selfLink = linkTo(CurriculumController.class).slash(curriculumResponseDTO.getCourseId()).withSelfRel();
+            curriculumResponseDTO.add(selfLink);
+        }
+        return curriculumResponseDTOList;
+    }
+
+    @GetMapping("/{id}")
+    @ResponseBody
+    public CurriculumResponseDTO getCurriculum(@PathVariable("id") Long courseId) {
+        CurriculumResponseDTO curriculumResponseDTO = curriculumService.getCurriculum(courseId);
+        Link selfLink = linkTo(CurriculumController.class).slash(curriculumResponseDTO.getCourseId()).withSelfRel();
+        curriculumResponseDTO.add(selfLink);
+        return curriculumResponseDTO;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public Curriculum addCurriculum(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
+    public CurriculumResponseDTO addCurriculum(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
         return curriculumService.addCurriculum(curriculumCreationDTO);
+    }
+
+//    @PutMapping
+//    @ResponseStatus(HttpStatus.OK)
+//    CourseDTO addLessonsToCourse(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
+//        CourseDTO courseWithLessonsResponse = courseService.addLessonsToCourse(curriculumCreationDTO);
+//        return courseWithLessonsResponse;
+//    }
+
+    @DeleteMapping(value = "/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteCurriculum(@PathVariable("id") Long courseId) {
+        curriculumService.deleteCurriculum(courseId);
     }
 
 }
