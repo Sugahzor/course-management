@@ -94,4 +94,9 @@ public class UserController {
             throw new MyResourceNotFoundException("user not found, please check id");
         }
     }
+
+    @GetMapping(value = "info/{userEmail}")
+    public UserDTO getUserByUserEmail(@PathVariable final String userEmail) {
+        return mapper.toDto(userService.getUserByUserEmail(userEmail));
+    }
 }

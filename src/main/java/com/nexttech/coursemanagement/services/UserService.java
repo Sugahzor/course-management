@@ -1,5 +1,6 @@
 package com.nexttech.coursemanagement.services;
 
+import com.nexttech.coursemanagement.DTOs.UserDTO;
 import com.nexttech.coursemanagement.DTOs.UserLoginDTO;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.UserRepo;
@@ -84,4 +85,7 @@ public class UserService {
         }
     }
 
+    public User getUserByUserEmail(final String userEmail) {
+        return userRepo.findByUserEmail(userEmail);
+    }
 }
