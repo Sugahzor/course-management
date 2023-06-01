@@ -10,5 +10,6 @@ import java.util.List;
 public interface CurriculumRepo extends CrudRepository<Curriculum, Long> {
 
     List<Curriculum> findAllDistinctByCourse_Id(Long courseId);
+    Curriculum findByCourse_IdAndLesson_Id(Long courseId, Long lessonId);
 
 }

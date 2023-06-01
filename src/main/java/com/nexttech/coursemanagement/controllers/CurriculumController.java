@@ -44,17 +44,17 @@ public class CurriculumController {
         return curriculumService.addCurriculum(curriculumCreationDTO);
     }
 
-//    @PutMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    CourseDTO addLessonsToCourse(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
-//        CourseDTO courseWithLessonsResponse = courseService.addLessonsToCourse(curriculumCreationDTO);
-//        return courseWithLessonsResponse;
-//    }
-
+    //Delete course and it's lessons = curricula
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteCurriculum(@PathVariable("id") Long courseId) {
-        curriculumService.deleteCurriculum(courseId);
+    public void deleteCurricula(@PathVariable("id") Long courseId) {
+        curriculumService.deleteCurricula(courseId);
     }
 
+    //Delete lesson from course = curriculum
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteCurriculum(@RequestParam("courseId") Long courseId, @RequestParam("lessonId") Long lessonId) {
+        curriculumService.deleteCurriculum(courseId, lessonId);
+    }
 }

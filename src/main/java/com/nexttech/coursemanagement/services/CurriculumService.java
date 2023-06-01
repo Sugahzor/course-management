@@ -24,7 +24,6 @@ public class CurriculumService {
 
 
     public CurriculumResponseDTO addCurriculum(CurriculumCreationDTO curriculumCreationDTO) {
-        CurriculumResponseDTO curriculumResponseDTO;
         List<LessonDTO> lessonDTOList = new ArrayList<>();
         Course course = courseService.getCourse(curriculumCreationDTO.getCourseId());
         List<Long> lessonIdList = curriculumCreationDTO.getLessonIdList();
@@ -34,8 +33,7 @@ public class CurriculumService {
             curriculumRepo.save(newCurriculum);
             lessonDTOList.add(lessonMapper.toDto(lesson));
         });
-        curriculumResponseDTO = new CurriculumResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
-        return curriculumResponseDTO;
+        return new CurriculumResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
     }
 
     public List<LessonDTO> getLessonsByCourseId(Long courseId) {
@@ -58,38 +56,19 @@ public class CurriculumService {
         return new CurriculumResponseDTO(courseId, course.getCourseName(), getLessonsByCourseId(courseId));
     }
 
-    public void deleteCurriculum(Long courseId) {
+    public Curriculum getCurriculumId(Long courseId, Long lessonId) {
+        System.out.println(curriculumRepo.findByCourse_IdAndLesson_Id(courseId,lessonId).getCourse().getCourseName());
+        return curriculumRepo.findByCourse_IdAndLesson_Id(courseId,lessonId);
+    }
+
+    public void deleteCurricula(Long courseId) {
         //TODO: on deleting a curriculum, automatically delete course also - confirm
         curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> curriculumRepo.delete(curriculum));
         courseService.deleteCourse(courseId);
     }
 
-//    public void deleteLessonFromCurriculum(Long lessonId) {
-//
-//    }
-
-    //    public CourseDTO addLessonsToCourse(CurriculumCreationDTO curriculumCreationDTO) {
-//        List<Lesson> lessonList = new ArrayList<>();
-//        List<LessonDTO> lessonDTOList = new ArrayList<>();
-//        CourseDTO addLessonsToCourseResponse = new CourseDTO();
-//
-//        curriculumCreationDTO.getLessonIdList().forEach(id -> {
-//            Optional<Lesson> lesson = lessonRepo.findById(id);
-//            if (lesson.isPresent()) {
-//                LessonDTO lessonDto = lessonMapper.toDto(lesson.get());
-//                lessonList.add(lesson.get());
-//                lessonDTOList.add(lessonDto);
-//            } else {
-//                //TODO: create lesson and then add it to course -> done by FE
-//            }
-//        });
-//        Course course = courseRepo.findById(curriculumCreationDTO.getCourseId()).get();
-//        if (course != null) {
-//            //TODO: save lessons to course...? or in curriculum table?
-////            -> add to curriculum
-////            course.setLessons(lessonList);
-//            addLessonsToCourseResponse = new CourseDTO(course.getId(),course.getCourseName(), course.getUser().getId(), lessonDTOList);
-//        }
-//        return addLessonsToCourseResponse;
-//    }
+    public void deleteCurriculum(Long courseId, Long lessonId) {
+        curriculumRepo.deleteById(curriculumRepo.findByCourse_IdAndLesson_Id(courseId, lessonId).getId());
+//        curriculumRepo.deleteByCourse_IdAndLesson_Id(courseId, lessonId);
+    }
 }
