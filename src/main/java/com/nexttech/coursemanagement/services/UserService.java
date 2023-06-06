@@ -1,11 +1,15 @@
 package com.nexttech.coursemanagement.services;
 
+import com.nexttech.coursemanagement.DTOs.LessonDTO;
+import com.nexttech.coursemanagement.DTOs.UserEnrollDTO;
 import com.nexttech.coursemanagement.DTOs.UserLoginDTO;
+import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.UserRepo;
 import com.nexttech.coursemanagement.util.BadRequestException;
 import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -19,6 +23,13 @@ import java.util.Optional;
 public class UserService {
     @Autowired
     private UserRepo userRepo;
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired @Lazy
+    private CurriculumService curriculumService;
+    @Autowired @Lazy
+    private AttendanceService attendanceService;
 
     public void register(User user) throws BadRequestException{
         try {
@@ -49,12 +60,34 @@ public class UserService {
         }
     }
 
+    public void enrollUser(UserEnrollDTO userEnrollDTO) {
+        User user = userRepo.findById(userEnrollDTO.userId).get();
+        Course course = courseService.getCourse(userEnrollDTO.courseId);
+        if (user.getCourses().contains(course)) {
+            System.out.println("User is already enrolled in this course");
+            return;
+        }
+        user.enrollToCourse(course);
+        //create user's attendance for each lesson in the course
+        List<LessonDTO> lessonDTOList = curriculumService.getLessonsByCourseId(course.getId());
+        lessonDTOList.forEach(lesson -> attendanceService.addAttendance(user.getId(), course.getId(), lesson.getId()));
+
+    }
+
+    public void disenrollFromCourse(UserEnrollDTO userEnrollDTO) {
+        User user = userRepo.findById(userEnrollDTO.userId).get();
+        Course course = courseService.getCourse(userEnrollDTO.courseId);
+        attendanceService.removeAttendances(userEnrollDTO.courseId, userEnrollDTO.userId);
+        //TODO: remove all homeworks
+        user.disenrollFromCourse(course);
+    }
+
     public List<User> findUsers(Optional<String> role) {
-        //TODO: which exceptions can occur here except DB failure?
         if(role.isPresent()) {
             return userRepo.findUsersByRole(role.get());
         } else {
             List<User> userList = new ArrayList<>();
+            //TODO: Warning:(90, 48) Lambda can be replaced with method reference
             userRepo.findAll().forEach(user -> userList.add(user));
             return userList;
         }
@@ -63,6 +96,7 @@ public class UserService {
     public User getUserById(Long id) {
         try {
             Assert.notNull(id, "Id cannot be null");
+            //TODO: Warning:(98, 42) 'Optional.get()' without 'isPresent()' check - check all
             return userRepo.findById(id).get();
         }
         catch(IllegalArgumentException exception) {

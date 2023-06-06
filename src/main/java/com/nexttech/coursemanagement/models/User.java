@@ -1,9 +1,7 @@
 package com.nexttech.coursemanagement.models;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -16,12 +14,16 @@ public class User {
     String userPassword;
     String userRole;
 
-    @ManyToMany(cascade = { CascadeType.ALL })
+    @ManyToMany(cascade = {
+            CascadeType.PERSIST,
+            CascadeType.MERGE
+    })
     @JoinTable(
             name = "Enrollment",
-            joinColumns = { @JoinColumn(name = "user_id") },
-            inverseJoinColumns = { @JoinColumn(name = "course_id") }
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "course_id")
     )
+    //TODO: Warning:(28, 25) Field 'courses' may be 'final'
     private Set<Course> courses = new HashSet<>();
 
     public User() {}
@@ -68,12 +70,31 @@ public class User {
     public void setUserRole(String userRole) {
         this.userRole = userRole;
     }
-//    public List<Course> getCoursesPerUser() {
-//        return coursesPerUser;
-//    }
-//
-//    public void setCoursesPerUser(List<Course> coursesPerUser) {
-//        this.coursesPerUser = coursesPerUser;
-//    }
+
+    public void enrollToCourse(Course course) {
+        courses.add(course);
+        course.getUsers().add(this);
+    }
+
+    public void disenrollFromCourse(Course course) {
+        courses.remove(course);
+        course.getUsers().remove(this);
+    }
+
+    public Set<Course> getCourses() {
+        return courses;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Course)) return false;
+        return id != null && id.equals(((Course) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 
 }

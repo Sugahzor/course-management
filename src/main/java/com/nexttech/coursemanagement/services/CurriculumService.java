@@ -2,11 +2,10 @@ package com.nexttech.coursemanagement.services;
 
 import com.nexttech.coursemanagement.DTOs.*;
 import com.nexttech.coursemanagement.mappers.LessonMapper;
-import com.nexttech.coursemanagement.models.Course;
-import com.nexttech.coursemanagement.models.Curriculum;
-import com.nexttech.coursemanagement.models.Lesson;
+import com.nexttech.coursemanagement.models.*;
 import com.nexttech.coursemanagement.repositories.CurriculumRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,9 +20,13 @@ public class CurriculumService {
     private LessonService lessonService;
     @Autowired
     private LessonMapper lessonMapper;
+    @Autowired @Lazy
+    private UserService userService;
+    @Autowired @Lazy
+    AttendanceService attendanceService;
 
 
-    public CurriculumResponseDTO addCurriculum(CurriculumCreationDTO curriculumCreationDTO) {
+    public CurriculaResponseDTO addCurriculum(CurriculumCreationDTO curriculumCreationDTO) {
         List<LessonDTO> lessonDTOList = new ArrayList<>();
         Course course = courseService.getCourse(curriculumCreationDTO.getCourseId());
         List<Long> lessonIdList = curriculumCreationDTO.getLessonIdList();
@@ -33,7 +36,11 @@ public class CurriculumService {
             curriculumRepo.save(newCurriculum);
             lessonDTOList.add(lessonMapper.toDto(lesson));
         });
-        return new CurriculumResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
+        return new CurriculaResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
+    }
+
+    public List<Curriculum> getAllByCourseId(Long courseId) {
+        return curriculumRepo.findAllByCourse_Id(courseId);
     }
 
     public List<LessonDTO> getLessonsByCourseId(Long courseId) {
@@ -42,33 +49,55 @@ public class CurriculumService {
         return lessonDTOList;
     }
 
-    public List<CurriculumResponseDTO> getCurricula() {
-        List<CurriculumResponseDTO> curriculaResponse = new ArrayList<>();
+    public List<LessonDTO> getLessonsWithAttendance(Long courseId, Long userId) {
+        List<LessonDTO> lessonDTOList = new ArrayList<>();
+        curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum ->
+                lessonDTOList.add(lessonMapper.toDto(curriculum.getLesson(), attendanceService.getAttendanceByCurriculumAndUser(curriculum.getId(), userId))));
+        return lessonDTOList;
+    }
+
+    public List<CurriculaResponseDTO> getCurricula() {
+        List<CurriculaResponseDTO> curriculaResponse = new ArrayList<>();
         List<CourseDTO> courses = new ArrayList<>();
         //TODO: Warning:(53, 54) Iteration can be replaced with bulk 'Collection.addAll()' call
         courseService.getCourses().forEach(course -> courses.add(course));
-        courses.forEach(course -> curriculaResponse.add(new CurriculumResponseDTO(course.getId(), course.getName(), getLessonsByCourseId(course.getId()))));
+        courses.forEach(course -> curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getName(), getLessonsByCourseId(course.getId()))));
         return curriculaResponse;
     }
 
-    public CurriculumResponseDTO getCurriculum(Long courseId) {
+    public CurriculaResponseDTO getCurricula(Long courseId) {
         Course course = courseService.getCourse(courseId);
-        return new CurriculumResponseDTO(courseId, course.getCourseName(), getLessonsByCourseId(courseId));
+        return new CurriculaResponseDTO(courseId, course.getCourseName(), getLessonsByCourseId(courseId));
     }
 
-    public Curriculum getCurriculumId(Long courseId, Long lessonId) {
-        System.out.println(curriculumRepo.findByCourse_IdAndLesson_Id(courseId,lessonId).getCourse().getCourseName());
+    public List<CurriculaResponseDTO> getCurriculaByUser(Long userId) {
+        List<CurriculaResponseDTO> curriculaResponse = new ArrayList<>();
+        User user = userService.getUserById(userId);
+        Set<Course> userCourses = user.getCourses();
+        userCourses.forEach(course ->
+            curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getCourseName(), getLessonsWithAttendance(course.getId(), userId)))
+        );
+        return curriculaResponse;
+    }
+
+    public Curriculum getCurriculum(Long courseId, Long lessonId) {
         return curriculumRepo.findByCourse_IdAndLesson_Id(courseId,lessonId);
     }
 
     public void deleteCurricula(Long courseId) {
         //TODO: on deleting a curriculum, automatically delete course also - confirm
-        curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> curriculumRepo.delete(curriculum));
+        //TODO: also delete attendance/homework for this curricula for all users enrolled to course, correct?
+        curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> {
+            attendanceService.removeAttendances(curriculum.getId());
+            curriculumRepo.delete(curriculum);
+        });
         courseService.deleteCourse(courseId);
     }
 
     public void deleteCurriculum(Long courseId, Long lessonId) {
-        curriculumRepo.deleteById(curriculumRepo.findByCourse_IdAndLesson_Id(courseId, lessonId).getId());
-//        curriculumRepo.deleteByCourse_IdAndLesson_Id(courseId, lessonId);
+        //TODO: also delete attendance/homework for this curriculum for all users enrolled to course, correct?
+        Long curriculumId = (curriculumRepo.findByCourse_IdAndLesson_Id(courseId, lessonId).getId());
+        attendanceService.removeAttendances(curriculumId);
+        curriculumRepo.deleteByCourse_IdAndLesson_Id(courseId, lessonId);
     }
 }

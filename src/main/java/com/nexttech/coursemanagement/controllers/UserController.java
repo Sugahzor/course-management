@@ -1,18 +1,19 @@
 package com.nexttech.coursemanagement.controllers;
 
-import com.nexttech.coursemanagement.DTOs.UserCreationDTO;
-import com.nexttech.coursemanagement.DTOs.UserDTO;
-import com.nexttech.coursemanagement.DTOs.UserLoginDTO;
+import com.nexttech.coursemanagement.DTOs.*;
 import com.nexttech.coursemanagement.mappers.UserMapper;
+import com.nexttech.coursemanagement.services.CurriculumService;
 import com.nexttech.coursemanagement.services.UserService;
 import com.nexttech.coursemanagement.util.BadRequestException;
 import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -27,6 +28,8 @@ public class UserController {
     private UserService userService;
     @Autowired
     private UserMapper mapper;
+    @Autowired @Lazy
+    private CurriculumService curriculumService;
 
     @GetMapping
     @ResponseBody
@@ -81,6 +84,26 @@ public class UserController {
             System.out.println(exception.getMessage() + "controller - custom messages not working....");
             throw new BadRequestException(exception.getMessage());
         }
+    }
+
+    @PostMapping(value = "/enroll")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional
+    public void enroll(@RequestBody UserEnrollDTO userEnrollDTO) {
+        userService.enrollUser(userEnrollDTO);
+    }
+
+    @PostMapping(value = "/disenroll")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional
+    public void disenrollFromCourse(@RequestBody UserEnrollDTO userEnrollDTO) {
+        userService.disenrollFromCourse(userEnrollDTO);
+    }
+
+    @GetMapping(value = "/curricula/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CurriculaResponseDTO> getUserCurricula(@PathVariable("id") Long userId) {
+        return curriculumService.getCurriculaByUser(userId);
     }
 
     @DeleteMapping(value = "/{id}")

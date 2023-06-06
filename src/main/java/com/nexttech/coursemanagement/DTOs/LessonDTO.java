@@ -7,12 +7,21 @@ public class LessonDTO extends RepresentationModel<LessonDTO> {
     String name;
     Byte[] content;
     Long userId;
+    AttendanceResponseDTO attendanceResponseDTO;
 
     public LessonDTO(Long id, String name, Byte[] content, Long userId) {
         this.id = id;
         this.name = name;
         this.content = content;
         this.userId = userId;
+    }
+
+    public LessonDTO(Long id, String name, Byte[] content, Long userId, AttendanceResponseDTO attendanceResponseDTO) {
+        this.id = id;
+        this.name = name;
+        this.content = content;
+        this.userId = userId;
+        this.attendanceResponseDTO = attendanceResponseDTO;
     }
 
     public Long getId() {

@@ -6,6 +6,7 @@ import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.CourseRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ import java.util.Optional;
 public class CourseService {
     @Autowired
     private CourseRepo courseRepo;
-    @Autowired
+    @Autowired @Lazy
     private UserService userService;
     @Autowired
     private CourseMapper courseMapper;
@@ -33,31 +34,6 @@ public class CourseService {
             return null;
         }
     }
-
-//    public CourseDTO addLessonsToCourse(CurriculumCreationDTO curriculumCreationDTO) {
-//        List<Lesson> lessonList = new ArrayList<>();
-//        List<LessonDTO> lessonDTOList = new ArrayList<>();
-//        CourseDTO addLessonsToCourseResponse = new CourseDTO();
-//
-//        curriculumCreationDTO.getLessonIdList().forEach(id -> {
-//            Optional<Lesson> lesson = lessonRepo.findById(id);
-//            if (lesson.isPresent()) {
-//                LessonDTO lessonDto = lessonMapper.toDto(lesson.get());
-//                lessonList.add(lesson.get());
-//                lessonDTOList.add(lessonDto);
-//            } else {
-//                //TODO: create lesson and then add it to course -> done by FE
-//            }
-//        });
-//        Course course = courseRepo.findById(curriculumCreationDTO.getCourseId()).get();
-//        if (course != null) {
-//            //TODO: save lessons to course...? or in curriculum table?
-////            -> add to curriculum
-////            course.setLessons(lessonList);
-//            addLessonsToCourseResponse = new CourseDTO(course.getId(),course.getCourseName(), course.getUser().getId(), lessonDTOList);
-//        }
-//        return addLessonsToCourseResponse;
-//    }
 
     public Course getCourse(Long id) {
         //TODO: Warning:(64, 40) 'Optional.get()' without 'isPresent()' check
