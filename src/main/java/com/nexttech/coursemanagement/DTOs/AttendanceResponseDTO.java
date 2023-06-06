@@ -10,4 +10,20 @@ public class AttendanceResponseDTO extends RepresentationModel<AttendanceRespons
         this.id = id;
         this.attendanceGrade = grade;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Byte getAttendanceGrade() {
+        return attendanceGrade;
+    }
+
+    public void setAttendanceGrade(Byte attendanceGrade) {
+        this.attendanceGrade = attendanceGrade;
+    }
 }

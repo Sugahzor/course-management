@@ -52,4 +52,12 @@ public class LessonDTO extends RepresentationModel<LessonDTO> {
         this.userId = userId;
     }
 
+    public AttendanceResponseDTO getAttendanceResponseDTO() {
+        return attendanceResponseDTO;
+    }
+
+    public void setAttendanceResponseDTO(AttendanceResponseDTO attendanceResponseDTO) {
+        this.attendanceResponseDTO = attendanceResponseDTO;
+    }
+
 }
