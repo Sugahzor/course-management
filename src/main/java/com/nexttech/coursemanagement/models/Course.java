@@ -1,6 +1,9 @@
 package com.nexttech.coursemanagement.models;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Course {
@@ -12,6 +15,9 @@ public class Course {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToMany(mappedBy = "courses")
+    private Set<User> users = new HashSet<>();
 
     public Course() {}
 
@@ -38,5 +44,27 @@ public class Course {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(Set<User> users) {
+        this.users = users;
+    }
+
+    // https://vladmihalcea.com/the-best-way-to-use-the-manytomany-annotation-with-jpa-and-hibernate/
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return Objects.equals(courseName, course.courseName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(courseName);
     }
 }

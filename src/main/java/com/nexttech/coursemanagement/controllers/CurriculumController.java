@@ -20,27 +20,27 @@ public class CurriculumController {
 
     @GetMapping
     @ResponseBody
-    public List<CurriculumResponseDTO> getCurricula()    {
-        List<CurriculumResponseDTO> curriculumResponseDTOList = curriculumService.getCurricula();
-        for(final CurriculumResponseDTO curriculumResponseDTO: curriculumResponseDTOList) {
-            Link selfLink = linkTo(CurriculumController.class).slash(curriculumResponseDTO.getCourseId()).withSelfRel();
-            curriculumResponseDTO.add(selfLink);
+    public List<CurriculaResponseDTO> getAllCurricula()    {
+        List<CurriculaResponseDTO> curriculaResponseDTOList = curriculumService.getCurricula();
+        for(final CurriculaResponseDTO curriculaResponseDTO : curriculaResponseDTOList) {
+            Link selfLink = linkTo(CurriculumController.class).slash(curriculaResponseDTO.getCourseId()).withSelfRel();
+            curriculaResponseDTO.add(selfLink);
         }
-        return curriculumResponseDTOList;
+        return curriculaResponseDTOList;
     }
 
     @GetMapping("/{id}")
     @ResponseBody
-    public CurriculumResponseDTO getCurriculum(@PathVariable("id") Long courseId) {
-        CurriculumResponseDTO curriculumResponseDTO = curriculumService.getCurriculum(courseId);
-        Link selfLink = linkTo(CurriculumController.class).slash(curriculumResponseDTO.getCourseId()).withSelfRel();
-        curriculumResponseDTO.add(selfLink);
-        return curriculumResponseDTO;
+    public CurriculaResponseDTO getCurricula(@PathVariable("id") Long courseId) {
+        CurriculaResponseDTO curriculaResponseDTO = curriculumService.getCurricula(courseId);
+        Link selfLink = linkTo(CurriculumController.class).slash(curriculaResponseDTO.getCourseId()).withSelfRel();
+        curriculaResponseDTO.add(selfLink);
+        return curriculaResponseDTO;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public CurriculumResponseDTO addCurriculum(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
+    public CurriculaResponseDTO addCurriculum(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
         return curriculumService.addCurriculum(curriculumCreationDTO);
     }
 

@@ -9,7 +9,10 @@ import java.util.List;
 @Repository
 public interface CurriculumRepo extends CrudRepository<Curriculum, Long> {
 
+    //TODO: arent they all distinct anyway? check and refactor
     List<Curriculum> findAllDistinctByCourse_Id(Long courseId);
+    List<Curriculum> findAllByCourse_Id(Long courseId);
     Curriculum findByCourse_IdAndLesson_Id(Long courseId, Long lessonId);
 
+    void deleteByCourse_IdAndLesson_Id(Long courseId, Long lessonId);
 }

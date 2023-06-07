@@ -4,12 +4,12 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
-public class CurriculumResponseDTO extends RepresentationModel<CurriculumResponseDTO> {
+public class CurriculaResponseDTO extends RepresentationModel<CurriculaResponseDTO> {
     Long courseId;
     String courseName;
     List<LessonDTO> lessonDTOList;
 
-    public CurriculumResponseDTO(Long courseId, String courseName, List<LessonDTO> lessonDTOList) {
+    public CurriculaResponseDTO(Long courseId, String courseName, List<LessonDTO> lessonDTOList) {
         this.courseId = courseId;
         this.courseName = courseName;
         this.lessonDTOList = lessonDTOList;
