@@ -138,4 +138,7 @@ public class UserService {
         }
     }
 
+    public User getUserByUserEmail(final String userEmail) {
+        return userRepo.findByUserEmail(userEmail);
+    }
 }
