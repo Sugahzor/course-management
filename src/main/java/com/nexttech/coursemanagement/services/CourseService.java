@@ -5,9 +5,11 @@ import com.nexttech.coursemanagement.mappers.CourseMapper;
 import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.CourseRepo;
+import com.nexttech.coursemanagement.util.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,28 +24,43 @@ public class CourseService {
     @Autowired
     private CourseMapper courseMapper;
 
-    public CourseDTO addCourse(String name, Long userId) {
-        Course existingCourse = courseRepo.findByCourseName(name);
-        User existingUser = userService.getUserById(userId);
-        if (existingCourse == null && existingUser != null) {
-            Course newCourse = new Course(name, existingUser);
-            courseRepo.save(newCourse);
-            return courseMapper.toDto(newCourse);
-        } else {
-            System.out.println("Course already exists.");
-            return null;
+    public CourseDTO addCourse(String name, Long userId) throws BadRequestException {
+        try {
+            Assert.hasLength(name, "Please provide course name.");
+            Course existingCourse = courseRepo.findByCourseName(name);
+            User existingUser = userService.getUserById(userId);
+            if (existingCourse == null && existingUser != null) {
+                Course newCourse = new Course(name, existingUser);
+                courseRepo.save(newCourse);
+                return courseMapper.toDto(newCourse);
+            } else {
+                throw new BadRequestException("Course already exists.");
+            }
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
+        catch(BadRequestException exception) {
+            throw new BadRequestException(exception.getMessage());
         }
     }
 
     public Course getCourse(Long id) {
-        //TODO: Warning:(64, 40) 'Optional.get()' without 'isPresent()' check
-        return courseRepo.findById(id).get();
+        try {
+            Optional<Course> course = courseRepo.findById(id);
+            Assert.isTrue(course.isPresent(), "Course not found.");
+            return course.get();
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public List<CourseDTO> getCourses() {
         List<CourseDTO> courseList = new ArrayList<>();
         courseRepo.findAll().forEach(course -> {
-            //TODO: add lessons list
             CourseDTO courseResponse = courseMapper.toDto(course);
             courseList.add(courseResponse);
         });
@@ -51,12 +68,14 @@ public class CourseService {
     }
 
     public void deleteCourse(Long id) {
-        Optional<Course> existingCourse = courseRepo.findById(id);
-        if (existingCourse.isPresent()) {
-            courseRepo.delete(existingCourse.get());
-        } else {
-            //throw bad id error
+        try {
+            Optional<Course> course = courseRepo.findById(id);
+            Assert.isTrue(course.isPresent(), "Course not found.");
+            courseRepo.delete(course.get());
         }
-
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 }

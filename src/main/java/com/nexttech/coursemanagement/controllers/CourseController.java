@@ -4,6 +4,7 @@ import com.nexttech.coursemanagement.DTOs.CourseCreationDTO;
 import com.nexttech.coursemanagement.DTOs.CourseDTO;
 import com.nexttech.coursemanagement.mappers.CourseMapper;
 import com.nexttech.coursemanagement.services.CourseService;
+import com.nexttech.coursemanagement.util.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
@@ -39,19 +40,12 @@ public class CourseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    CourseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) {
+    CourseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) throws BadRequestException {
         CourseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getUserId());
         Link selfLink = linkTo(CourseController.class).slash(courseResponse.getId()).withSelfRel();
         courseResponse.add(selfLink);
         return courseResponse;
     }
-
-//    @PutMapping
-//    @ResponseStatus(HttpStatus.OK)
-//    CourseDTO addLessonsToCourse(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
-//        CourseDTO courseWithLessonsResponse = courseService.addLessonsToCourse(curriculumCreationDTO);
-//        return courseWithLessonsResponse;
-//    }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)

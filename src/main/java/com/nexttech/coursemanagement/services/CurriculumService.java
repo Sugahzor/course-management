@@ -7,6 +7,7 @@ import com.nexttech.coursemanagement.repositories.CurriculumRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -27,77 +28,146 @@ public class CurriculumService {
 
 
     public CurriculaResponseDTO addCurriculum(CurriculumCreationDTO curriculumCreationDTO) {
-        List<LessonDTO> lessonDTOList = new ArrayList<>();
-        Course course = courseService.getCourse(curriculumCreationDTO.getCourseId());
-        List<Long> lessonIdList = curriculumCreationDTO.getLessonIdList();
-        lessonIdList.forEach(lessonId -> {
-            Lesson lesson = lessonService.getLesson(lessonId);
-            Curriculum newCurriculum = new Curriculum(course, lesson);
-            curriculumRepo.save(newCurriculum);
-            lessonDTOList.add(lessonMapper.toDto(lesson));
-        });
-        return new CurriculaResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
+        try {
+            List<LessonDTO> lessonDTOList = new ArrayList<>();
+            Course course = courseService.getCourse(curriculumCreationDTO.getCourseId());
+            Assert.notNull(course, "Course not found.");
+            List<Long> lessonIdList = curriculumCreationDTO.getLessonIdList();
+            lessonIdList.forEach(lessonId -> {
+                Lesson lesson = lessonService.getLesson(lessonId);
+                Assert.notNull(lesson, "Lesson id not ok: " + lessonId);
+                Curriculum newCurriculum = new Curriculum(course, lesson);
+                curriculumRepo.save(newCurriculum);
+                lessonDTOList.add(lessonMapper.toDto(lesson));
+            });
+            return new CurriculaResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public List<Curriculum> getAllByCourseId(Long courseId) {
-        return curriculumRepo.findAllByCourse_Id(courseId);
+        try {
+            Assert.notNull(courseId, "CourseId cannot be null.");
+            return curriculumRepo.findAllByCourse_Id(courseId);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public List<LessonDTO> getLessonsByCourseId(Long courseId) {
-        List<LessonDTO> lessonDTOList = new ArrayList<>();
-        curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> lessonDTOList.add(lessonMapper.toDto(curriculum.getLesson())));
-        return lessonDTOList;
+        try {
+            Assert.notNull(courseId, "CourseId cannot be null.");
+            List<LessonDTO> lessonDTOList = new ArrayList<>();
+            curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> lessonDTOList.add(lessonMapper.toDto(curriculum.getLesson())));
+            return lessonDTOList;
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public List<LessonDTO> getLessonsWithAttendance(Long courseId, Long userId) {
-        List<LessonDTO> lessonDTOList = new ArrayList<>();
-        curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum ->
-                lessonDTOList.add(lessonMapper.toDto(curriculum.getLesson(), attendanceService.getAttendanceByCurriculumAndUser(curriculum.getId(), userId))));
-        return lessonDTOList;
+        try {
+            Assert.notNull(courseId, "Course id cannot be null");
+            Assert.notNull(userId, "User id cannot be null");
+            List<LessonDTO> lessonDTOList = new ArrayList<>();
+            curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum ->
+                    lessonDTOList.add(lessonMapper.toDto(curriculum.getLesson(), attendanceService.getAttendanceByCurriculumAndUser(curriculum.getId(), userId))));
+            return lessonDTOList;
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public List<CurriculaResponseDTO> getCurricula() {
         List<CurriculaResponseDTO> curriculaResponse = new ArrayList<>();
         List<CourseDTO> courses = new ArrayList<>();
         //TODO: Warning:(53, 54) Iteration can be replaced with bulk 'Collection.addAll()' call
+//        Collections.addAll(courses, courseService.getCourses()); -> needs individual elements...?
         courseService.getCourses().forEach(course -> courses.add(course));
         courses.forEach(course -> curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getName(), getLessonsByCourseId(course.getId()))));
         return curriculaResponse;
     }
 
     public CurriculaResponseDTO getCurricula(Long courseId) {
-        Course course = courseService.getCourse(courseId);
-        return new CurriculaResponseDTO(courseId, course.getCourseName(), getLessonsByCourseId(courseId));
+        try {
+            Assert.notNull(courseId, "Course id cannot be null.");
+            Course course = courseService.getCourse(courseId);
+            return new CurriculaResponseDTO(courseId, course.getCourseName(), getLessonsByCourseId(courseId));
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public List<CurriculaResponseDTO> getCurriculaByUser(Long userId) {
-        List<CurriculaResponseDTO> curriculaResponse = new ArrayList<>();
-        User user = userService.getUserById(userId);
-        Set<Course> userCourses = user.getCourses();
-        userCourses.forEach(course ->
-            curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getCourseName(), getLessonsWithAttendance(course.getId(), userId)))
-        );
-        return curriculaResponse;
+        try {
+            Assert.notNull(userId, "User id cannot be null.");
+            List<CurriculaResponseDTO> curriculaResponse = new ArrayList<>();
+            User user = userService.getUserById(userId);
+            Set<Course> userCourses = user.getCourses();
+            Assert.notNull(userCourses, "User has no courses.");
+            userCourses.forEach(course ->
+                    curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getCourseName(), getLessonsWithAttendance(course.getId(), userId)))
+            );
+            return curriculaResponse;
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public Curriculum getCurriculum(Long courseId, Long lessonId) {
-        return curriculumRepo.findByCourse_IdAndLesson_Id(courseId,lessonId);
+        try {
+            Assert.notNull(courseId, "Course id cannot be null.");
+            Assert.notNull(lessonId, "Lesson id cannot be null.");
+            return curriculumRepo.findByCourse_IdAndLesson_Id(courseId,lessonId);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public void deleteCurricula(Long courseId) {
-        //TODO: on deleting a curriculum, automatically delete course also - confirm
-        //TODO: also delete attendance/homework for this curricula for all users enrolled to course, correct?
-        curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> {
-            attendanceService.removeAttendances(curriculum.getId());
-            curriculumRepo.delete(curriculum);
-        });
-        courseService.deleteCourse(courseId);
+        try {
+            Assert.notNull(courseId, "Course id cannot be null.");
+            //TODO: on deleting a curriculum, automatically delete course also - confirm
+            //TODO: also delete attendance/homework for this curricula for all users enrolled to course, correct?
+            curriculumRepo.findAllDistinctByCourse_Id(courseId).forEach(curriculum -> {
+                attendanceService.removeAttendances(curriculum.getId());
+                curriculumRepo.delete(curriculum);
+            });
+            courseService.deleteCourse(courseId);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 
     public void deleteCurriculum(Long courseId, Long lessonId) {
-        //TODO: also delete attendance/homework for this curriculum for all users enrolled to course, correct?
-        Long curriculumId = (curriculumRepo.findByCourse_IdAndLesson_Id(courseId, lessonId).getId());
-        attendanceService.removeAttendances(curriculumId);
-        curriculumRepo.deleteByCourse_IdAndLesson_Id(courseId, lessonId);
+        try {
+            Assert.notNull(courseId, "Course id cannot be null.");
+            Assert.notNull(lessonId, "Lesson id cannot be null.");
+            //TODO: also delete attendance/homework for this curriculum for all users enrolled to course, correct?
+            Long curriculumId = (curriculumRepo.findByCourse_IdAndLesson_Id(courseId, lessonId).getId());
+            attendanceService.removeAttendances(curriculumId);
+            curriculumRepo.deleteByCourse_IdAndLesson_Id(courseId, lessonId);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
     }
 }
