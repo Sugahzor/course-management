@@ -139,6 +139,15 @@ public class UserService {
     }
 
     public User getUserByUserEmail(final String userEmail) {
-        return userRepo.findByUserEmail(userEmail);
+        try {
+            return userRepo.findByUserEmail(userEmail);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
+        catch(EmptyResultDataAccessException exception){
+            throw new MyResourceNotFoundException("User not found");
+        }
     }
 }
