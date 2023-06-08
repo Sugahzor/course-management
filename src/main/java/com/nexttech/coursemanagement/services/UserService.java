@@ -60,26 +60,41 @@ public class UserService {
         }
     }
 
-    public void enrollUser(UserEnrollDTO userEnrollDTO) {
-        User user = userRepo.findById(userEnrollDTO.userId).get();
-        Course course = courseService.getCourse(userEnrollDTO.courseId);
-        if (user.getCourses().contains(course)) {
-            System.out.println("User is already enrolled in this course");
-            return;
+    public void enrollUser(UserEnrollDTO userEnrollDTO) throws BadRequestException{
+        try {
+            Course course = courseService.getCourse(userEnrollDTO.courseId);
+            Optional<User> user = userRepo.findById(userEnrollDTO.userId);
+            Assert.isTrue(user.isPresent(), "User not found.");
+            Assert.notNull(course, "Course not found.");
+            if (user.get().getCourses().contains(course)) {
+                System.out.println("User is already enrolled in this course");
+                return;
+            }
+            user.get().enrollToCourse(course);
+            //create user's attendance for each lesson in the course
+            List<LessonDTO> lessonDTOList = curriculumService.getLessonsByCourseId(course.getId());
+            lessonDTOList.forEach(lesson -> attendanceService.addAttendance(user.get().getId(), course.getId(), lesson.getId()));
         }
-        user.enrollToCourse(course);
-        //create user's attendance for each lesson in the course
-        List<LessonDTO> lessonDTOList = curriculumService.getLessonsByCourseId(course.getId());
-        lessonDTOList.forEach(lesson -> attendanceService.addAttendance(user.getId(), course.getId(), lesson.getId()));
-
+        catch(IllegalArgumentException exception) {
+            System.out.println(exception.getMessage() + "IllegalArgumentException service");
+            throw new BadRequestException(exception.getLocalizedMessage());
+        }
     }
 
-    public void disenrollFromCourse(UserEnrollDTO userEnrollDTO) {
-        User user = userRepo.findById(userEnrollDTO.userId).get();
-        Course course = courseService.getCourse(userEnrollDTO.courseId);
-        attendanceService.removeAttendances(userEnrollDTO.courseId, userEnrollDTO.userId);
-        //TODO: remove all homeworks
-        user.disenrollFromCourse(course);
+    public void disenrollFromCourse(UserEnrollDTO userEnrollDTO) throws BadRequestException{
+        try {
+            Optional<User> user = userRepo.findById(userEnrollDTO.userId);
+            Course course = courseService.getCourse(userEnrollDTO.courseId);
+            Assert.isTrue(user.isPresent(), "User not found.");
+            Assert.notNull(course, "Course not found.");
+            attendanceService.removeAttendances(userEnrollDTO.courseId, userEnrollDTO.userId);
+            //TODO: remove all homeworks
+            user.get().disenrollFromCourse(course);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println(exception.getMessage() + "IllegalArgumentException service");
+            throw new BadRequestException(exception.getLocalizedMessage());
+        }
     }
 
     public List<User> findUsers(Optional<String> role) {
@@ -96,8 +111,9 @@ public class UserService {
     public User getUserById(Long id) {
         try {
             Assert.notNull(id, "Id cannot be null");
-            //TODO: Warning:(98, 42) 'Optional.get()' without 'isPresent()' check - check all
-            return userRepo.findById(id).get();
+            Optional<User> user = userRepo.findById(id);
+            Assert.isTrue(user.isPresent(), "User not found.");
+            return user.get();
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");
@@ -112,6 +128,10 @@ public class UserService {
     public void deleteUser(Long id) {
         try {
             userRepo.deleteById(id);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
         }
         catch(EmptyResultDataAccessException exception){
             throw new MyResourceNotFoundException("User not found");

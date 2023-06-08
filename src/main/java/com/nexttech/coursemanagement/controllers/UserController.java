@@ -89,14 +89,14 @@ public class UserController {
     @PostMapping(value = "/enroll")
     @ResponseStatus(HttpStatus.OK)
     @Transactional
-    public void enroll(@RequestBody UserEnrollDTO userEnrollDTO) {
+    public void enroll(@RequestBody UserEnrollDTO userEnrollDTO) throws BadRequestException{
         userService.enrollUser(userEnrollDTO);
     }
 
     @PostMapping(value = "/disenroll")
     @ResponseStatus(HttpStatus.OK)
     @Transactional
-    public void disenrollFromCourse(@RequestBody UserEnrollDTO userEnrollDTO) {
+    public void disenrollFromCourse(@RequestBody UserEnrollDTO userEnrollDTO) throws BadRequestException{
         userService.disenrollFromCourse(userEnrollDTO);
     }
 
