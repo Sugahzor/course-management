@@ -72,12 +72,7 @@ public class CourseService {
             return this.getCourses();
         }
         List<CourseDTO> courseDTOList = new ArrayList<>();
-        courseRepo.findAll().forEach(course -> {
-            if (course.getCourseName().toLowerCase().contains(searchTerm.get().toLowerCase())) {
-                CourseDTO courseDTO = courseMapper.toDto(course);
-                courseDTOList.add(courseDTO);
-            }
-        });
+        courseRepo.findByCourseNameContainingIgnoreCase(searchTerm.get()).forEach(course -> courseDTOList.add(courseMapper.toDto(course)));
         return courseDTOList;
     }
 
