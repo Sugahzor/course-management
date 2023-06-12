@@ -35,13 +35,16 @@ public class CourseController {
     @GetMapping("/{id}")
     @ResponseBody
     public CourseDTO getById(@PathVariable("id") Long id) {
-        return courseMapper.toDto(courseService.getCourse(id));
+        CourseDTO courseDTO = courseMapper.toDto(courseService.getCourse(id));
+        Link selfLink = linkTo(CourseController.class).slash(courseDTO.getId()).withSelfRel();
+        courseDTO.add(selfLink);
+        return courseDTO;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     CourseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) throws BadRequestException {
-        CourseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getUserId());
+        CourseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getImageUrl(), courseCreationDTO.getUserId());
         Link selfLink = linkTo(CourseController.class).slash(courseResponse.getId()).withSelfRel();
         courseResponse.add(selfLink);
         return courseResponse;

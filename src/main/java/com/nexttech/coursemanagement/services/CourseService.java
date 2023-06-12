@@ -24,13 +24,13 @@ public class CourseService {
     @Autowired
     private CourseMapper courseMapper;
 
-    public CourseDTO addCourse(String name, Long userId) throws BadRequestException {
+    public CourseDTO addCourse(String name, String imgUrl, Long userId) throws BadRequestException {
         try {
             Assert.hasLength(name, "Please provide course name.");
             Course existingCourse = courseRepo.findByCourseName(name);
             User existingUser = userService.getUserById(userId);
             if (existingCourse == null && existingUser != null) {
-                Course newCourse = new Course(name, existingUser);
+                Course newCourse = new Course(name, imgUrl, existingUser);
                 courseRepo.save(newCourse);
                 return courseMapper.toDto(newCourse);
             } else {

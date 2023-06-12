@@ -40,7 +40,7 @@ public class CurriculumService {
                 curriculumRepo.save(newCurriculum);
                 lessonDTOList.add(lessonMapper.toDto(lesson));
             });
-            return new CurriculaResponseDTO(course.getId(), course.getCourseName(), lessonDTOList);
+            return new CurriculaResponseDTO(course.getId(), course.getCourseName(), course.getImageUrl(), lessonDTOList);
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");
@@ -93,7 +93,7 @@ public class CurriculumService {
         //TODO: Warning:(53, 54) Iteration can be replaced with bulk 'Collection.addAll()' call
 //        Collections.addAll(courses, courseService.getCourses()); -> needs individual elements...?
         courseService.getCourses().forEach(course -> courses.add(course));
-        courses.forEach(course -> curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getName(), getLessonsByCourseId(course.getId()))));
+        courses.forEach(course -> curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getName(), course.getImageUrl(), getLessonsByCourseId(course.getId()))));
         return curriculaResponse;
     }
 
@@ -101,7 +101,7 @@ public class CurriculumService {
         try {
             Assert.notNull(courseId, "Course id cannot be null.");
             Course course = courseService.getCourse(courseId);
-            return new CurriculaResponseDTO(courseId, course.getCourseName(), getLessonsByCourseId(courseId));
+            return new CurriculaResponseDTO(courseId, course.getCourseName(), course.getImageUrl(), getLessonsByCourseId(courseId));
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");
@@ -117,7 +117,7 @@ public class CurriculumService {
             Set<Course> userCourses = user.getCourses();
             Assert.notNull(userCourses, "User has no courses.");
             userCourses.forEach(course ->
-                    curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getCourseName(), getLessonsWithAttendance(course.getId(), userId)))
+                    curriculaResponse.add(new CurriculaResponseDTO(course.getId(), course.getCourseName(), course.getImageUrl(), getLessonsWithAttendance(course.getId(), userId)))
             );
             return curriculaResponse;
         }

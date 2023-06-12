@@ -7,11 +7,13 @@ import java.util.List;
 public class CurriculaResponseDTO extends RepresentationModel<CurriculaResponseDTO> {
     Long courseId;
     String courseName;
+    String imageUrl;
     List<LessonDTO> lessonDTOList;
 
-    public CurriculaResponseDTO(Long courseId, String courseName, List<LessonDTO> lessonDTOList) {
+    public CurriculaResponseDTO(Long courseId, String courseName, String imageUrl, List<LessonDTO> lessonDTOList) {
         this.courseId = courseId;
         this.courseName = courseName;
+        this.imageUrl = imageUrl;
         this.lessonDTOList = lessonDTOList;
     }
 
@@ -29,6 +31,14 @@ public class CurriculaResponseDTO extends RepresentationModel<CurriculaResponseD
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public List<LessonDTO> getLessonDTOList() {

@@ -2,7 +2,7 @@ package com.nexttech.coursemanagement.DTOs;
 
 public class CourseCreationDTO {
     String name;
-
+    String imageUrl;
     Long userId;
 
     public String getName() {
@@ -11,6 +11,14 @@ public class CourseCreationDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Long getUserId() {

@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 public class CourseMapper {
 
     public CourseDTO toDto(Course course) {
-        return new CourseDTO(course.getId(), course.getCourseName(), course.getUser().getId());
+        return new CourseDTO(course.getId(), course.getCourseName(), course.getImageUrl(), course.getUser().getId());
     }
 }

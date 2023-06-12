@@ -5,11 +5,13 @@ import org.springframework.hateoas.RepresentationModel;
 public class CourseDTO extends RepresentationModel<CourseDTO> {
     Long id;
     String name;
+    String imageUrl;
     Long userId;
 
-    public CourseDTO(Long id, String name, Long userId) {
+    public CourseDTO(Long id, String name, String imageUrl, Long userId) {
         this.id = id;
         this.name = name;
+        this.imageUrl = imageUrl;
         this.userId = userId;
     }
 
@@ -27,6 +29,14 @@ public class CourseDTO extends RepresentationModel<CourseDTO> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Long getUserId() {

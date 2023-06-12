@@ -11,6 +11,7 @@ public class Course {
     @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
     String courseName;
+    String imageUrl;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
@@ -21,8 +22,9 @@ public class Course {
 
     public Course() {}
 
-    public Course(String courseName, User user) {
+    public Course(String courseName, String imgUrl, User user) {
         this.courseName = courseName;
+        this.imageUrl = imgUrl;
         this.user = user;
     }
 
@@ -36,6 +38,14 @@ public class Course {
 
     public void setCourseName(String courseName) {
         this.courseName = courseName;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public User getUser() {
