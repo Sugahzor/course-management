@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -23,8 +24,8 @@ public class CourseController {
     private CourseMapper courseMapper;
 
     @GetMapping
-    List<CourseDTO> getCourses() {
-        List<CourseDTO> courseListResponse = courseService.getCourses();
+    List<CourseDTO> getCourses(@RequestParam(required=false) Optional<String> searchTerm) {
+        List<CourseDTO> courseListResponse = courseService.getCoursesBySearchTerm(searchTerm);
         for (final CourseDTO course : courseListResponse) {
             Link selfLink = linkTo(CourseController.class).slash(course.getId()).withSelfRel();
             course.add(selfLink);

@@ -67,6 +67,20 @@ public class CourseService {
         return courseList;
     }
 
+    public List<CourseDTO> getCoursesBySearchTerm(Optional<String> searchTerm) {
+        if (searchTerm.isEmpty()) {
+            return this.getCourses();
+        }
+        List<CourseDTO> courseDTOList = new ArrayList<>();
+        courseRepo.findAll().forEach(course -> {
+            if (course.getCourseName().toLowerCase().contains(searchTerm.get().toLowerCase())) {
+                CourseDTO courseDTO = courseMapper.toDto(course);
+                courseDTOList.add(courseDTO);
+            }
+        });
+        return courseDTOList;
+    }
+
     public void deleteCourse(Long id) {
         try {
             Optional<Course> course = courseRepo.findById(id);
