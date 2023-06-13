@@ -59,9 +59,10 @@ public class UserController {
     @PostMapping(value = "/login")
     // /session/new?
     @ResponseStatus(HttpStatus.OK)
-    public void login(@RequestBody UserLoginDTO userLoginDTO) {
+    public UserDTO login(@RequestBody UserLoginDTO userLoginDTO) {
         try {
-            userService.login(userLoginDTO);
+            UserDTO userDTO = userService.login(userLoginDTO);
+            return userDTO;
         }
         catch(IllegalArgumentException exception) {
             System.out.println(exception.getLocalizedMessage() + "IllegalArgumentException controller");
@@ -71,7 +72,6 @@ public class UserController {
             System.out.println(exception.getMessage() + "BadRequestException in controlelr");
             throw new MyResourceNotFoundException(exception.getMessage());
         }
-
     }
 
     @PostMapping()

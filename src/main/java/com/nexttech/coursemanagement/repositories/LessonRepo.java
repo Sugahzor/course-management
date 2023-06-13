@@ -4,7 +4,9 @@ import com.nexttech.coursemanagement.models.Lesson;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface LessonRepo extends CrudRepository<Lesson, Long> {
-//    Course findByLessonName(String courseName);
+    List<Lesson> findByNameContainingIgnoreCase(String searchTerm);
 }

@@ -1,8 +1,10 @@
 package com.nexttech.coursemanagement.services;
 
 import com.nexttech.coursemanagement.DTOs.LessonDTO;
+import com.nexttech.coursemanagement.DTOs.UserDTO;
 import com.nexttech.coursemanagement.DTOs.UserEnrollDTO;
 import com.nexttech.coursemanagement.DTOs.UserLoginDTO;
+import com.nexttech.coursemanagement.mappers.UserMapper;
 import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.UserRepo;
@@ -24,8 +26,9 @@ public class UserService {
     @Autowired
     private UserRepo userRepo;
     @Autowired
+    private UserMapper userMapper;
+    @Autowired
     private CourseService courseService;
-
     @Autowired @Lazy
     private CurriculumService curriculumService;
     @Autowired @Lazy
@@ -41,12 +44,13 @@ public class UserService {
         }
     }
 
-    public void login(UserLoginDTO userLoginDTO) throws BadRequestException{
+    public UserDTO login(UserLoginDTO userLoginDTO) throws BadRequestException{
         try {
             User loginUser = userRepo.findByUserEmail(userLoginDTO.getUserEmail()); //shouldn't this throw IllegalArgumentException??
             Assert.notNull(loginUser, "Email not found.");
             if (userLoginDTO.getUserPassword().equals(loginUser.getUserPassword())) {
                 System.out.println("User login successful");
+                return userMapper.toDto(loginUser);
             } else {
                 throw new BadRequestException("Please check password.");
             }

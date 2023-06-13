@@ -12,6 +12,7 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class LessonService {
@@ -57,6 +58,15 @@ public class LessonService {
             lessonsList.add(lessonResponse);
         });
         return lessonsList;
+    }
+
+    public List<LessonDTO> getLessonsBySearchTerm(Optional<String> searchTerm) {
+        if (searchTerm.isEmpty()) {
+            return getLessons();
+        }
+        List<LessonDTO> lessonDTOList = new ArrayList<>();
+        lessonRepo.findByNameContainingIgnoreCase(searchTerm.get()).forEach(lesson -> lessonDTOList.add(lessonMapper.toDto(lesson)));
+        return lessonDTOList;
     }
 
     public void deleteLesson(Long id) {

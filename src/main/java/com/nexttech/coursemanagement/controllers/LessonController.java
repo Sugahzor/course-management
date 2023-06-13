@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
@@ -24,8 +25,8 @@ public class LessonController {
 
     @GetMapping
     @ResponseBody
-    public List<LessonDTO> getLessons() {
-        List<LessonDTO> lessonsList = lessonService.getLessons();
+    public List<LessonDTO> getLessons(@RequestParam(required=false) Optional<String> searchTerm) {
+        List<LessonDTO> lessonsList = lessonService.getLessonsBySearchTerm(searchTerm);
         for(final LessonDTO lesson: lessonsList) {
             Link selfLink = linkTo(LessonController.class).slash(lesson.getId()).withSelfRel();
             lesson.add(selfLink);
