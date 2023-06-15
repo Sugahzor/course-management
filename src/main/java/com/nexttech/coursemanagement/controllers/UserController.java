@@ -100,10 +100,10 @@ public class UserController {
         userService.disenrollFromCourse(userEnrollDTO);
     }
 
-    @GetMapping(value = "/curricula/{id}")
+    @GetMapping(value = "/{id}/curricula")
     @ResponseStatus(HttpStatus.OK)
-    public List<CurriculaResponseDTO> getUserCurricula(@PathVariable("id") Long userId) {
-        return curriculumService.getCurriculaByUser(userId);
+    public List<CourseResponseDTO> getUserCurricula(@PathVariable("id") Long userId) {
+        return userService.getCoursesWithLessonsByUser(userId);
     }
 
     @DeleteMapping(value = "/{id}")

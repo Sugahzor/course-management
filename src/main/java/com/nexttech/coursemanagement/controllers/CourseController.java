@@ -1,7 +1,8 @@
 package com.nexttech.coursemanagement.controllers;
 
 import com.nexttech.coursemanagement.DTOs.CourseCreationDTO;
-import com.nexttech.coursemanagement.DTOs.CourseDTO;
+import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
+import com.nexttech.coursemanagement.DTOs.CurriculumCreationDTO;
 import com.nexttech.coursemanagement.mappers.CourseMapper;
 import com.nexttech.coursemanagement.services.CourseService;
 import com.nexttech.coursemanagement.util.BadRequestException;
@@ -20,14 +21,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 public class CourseController {
     @Autowired
     private CourseService courseService;
-    @Autowired
-    private CourseMapper courseMapper;
 
     @GetMapping
-    List<CourseDTO> getCourses(@RequestParam(required=false) Optional<String> searchTerm) {
-        List<CourseDTO> courseListResponse = courseService.getCoursesBySearchTerm(searchTerm);
-        for (final CourseDTO course : courseListResponse) {
-            Link selfLink = linkTo(CourseController.class).slash(course.getId()).withSelfRel();
+    List<CourseResponseDTO> getCourses(@RequestParam(required=false) Optional<String> searchTerm) {
+        List<CourseResponseDTO> courseListResponse = courseService.getCoursesBySearchTerm(searchTerm);
+        for (final CourseResponseDTO course : courseListResponse) {
+            Link selfLink = linkTo(CourseController.class).slash(course.getCourseId()).withSelfRel();
             course.add(selfLink);
         }
         return courseListResponse;
@@ -35,25 +34,38 @@ public class CourseController {
 
     @GetMapping("/{id}")
     @ResponseBody
-    public CourseDTO getById(@PathVariable("id") Long id) {
-        CourseDTO courseDTO = courseMapper.toDto(courseService.getCourse(id));
-        Link selfLink = linkTo(CourseController.class).slash(courseDTO.getId()).withSelfRel();
-        courseDTO.add(selfLink);
-        return courseDTO;
+    public CourseResponseDTO getById(@PathVariable("id") Long id) {
+        CourseResponseDTO courseResponseDTO = courseService.getCourseResponse(id);
+        Link selfLink = linkTo(CourseController.class).slash(courseResponseDTO.getCourseId()).withSelfRel();
+        courseResponseDTO.add(selfLink);
+        return courseResponseDTO;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    CourseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) throws BadRequestException {
-        CourseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getImageUrl(), courseCreationDTO.getUserId());
-        Link selfLink = linkTo(CourseController.class).slash(courseResponse.getId()).withSelfRel();
+    CourseResponseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) throws BadRequestException {
+        CourseResponseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getImageUrl(), courseCreationDTO.getUserId());
+        Link selfLink = linkTo(CourseController.class).slash(courseResponse.getCourseId()).withSelfRel();
         courseResponse.add(selfLink);
         return courseResponse;
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    CourseResponseDTO addCourseCurriculum(@RequestBody CurriculumCreationDTO curriculumCreationDTO) {
+        //Add lessons to course
+        return courseService.addCourseCurriculum(curriculumCreationDTO);
     }
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteCourse(@PathVariable("id") Long courseId) {
         courseService.deleteCourse(courseId);
+    }
+
+    @DeleteMapping(value = "/{courseId}/lessonId/{lessonId}")
+    @ResponseStatus(HttpStatus.OK)
+    public CourseResponseDTO deleteLessonFromCourse(@PathVariable("courseId") Long courseId, @PathVariable("lessonId") Long lessonId) {
+        return courseService.deleteLessonFromCourse(courseId, lessonId);
     }
 }

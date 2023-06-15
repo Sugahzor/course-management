@@ -7,10 +7,10 @@ import com.nexttech.coursemanagement.models.Curriculum;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.AttendanceRepo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -24,9 +24,6 @@ public class AttendanceService {
     CurriculumService curriculumService;
     @Autowired
     AttendanceMapper attendanceMapper;
-
-    @Autowired @Lazy
-    CourseService courseService;
 
     public void addAttendance(Long userId, Long courseId, Long lessonId) {
         try {
@@ -68,6 +65,7 @@ public class AttendanceService {
         }
     }
 
+    @Transactional
     public void removeAttendances(Long curriculumId) {
         try {
             Assert.notNull(curriculumId, "Curriculum id cannot be null.");

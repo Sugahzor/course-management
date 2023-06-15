@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LessonMapper {
-    public LessonDTO toDto(Lesson lesson) {
+    public LessonDTO toDtoNoAttendance(Lesson lesson) {
         return new LessonDTO(lesson.getId(), lesson.getName(), lesson.getContent(), lesson.getUser().getId());
     }
 

@@ -3,10 +3,13 @@ package com.nexttech.coursemanagement.services;
 import com.nexttech.coursemanagement.DTOs.LessonCreationDTO;
 import com.nexttech.coursemanagement.DTOs.LessonDTO;
 import com.nexttech.coursemanagement.mappers.LessonMapper;
+import com.nexttech.coursemanagement.models.Curriculum;
 import com.nexttech.coursemanagement.models.Lesson;
 import com.nexttech.coursemanagement.models.User;
+import com.nexttech.coursemanagement.repositories.CurriculumRepo;
 import com.nexttech.coursemanagement.repositories.LessonRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -22,6 +25,10 @@ public class LessonService {
     private UserService userService;
     @Autowired
     private LessonMapper lessonMapper;
+    @Autowired @Lazy
+    private CurriculumRepo curriculumRepo;
+    @Autowired @Lazy
+    private CourseService courseService;
 
     public LessonDTO addLesson(LessonCreationDTO lessonCreationDTO) {
         try {
@@ -30,7 +37,7 @@ public class LessonService {
             Assert.notNull(lessonCreationDTO.getContent(), "Lesson must have content.");
             Lesson lesson = new Lesson(lessonCreationDTO.getName(), lessonCreationDTO.getContent(), user);
             lessonRepo.save(lesson);
-            LessonDTO lessonResponse = lessonMapper.toDto(lesson);
+            LessonDTO lessonResponse = lessonMapper.toDtoNoAttendance(lesson);
             return lessonResponse;
         }
         catch(IllegalArgumentException exception) {
@@ -41,6 +48,7 @@ public class LessonService {
 
     public Lesson getLesson(Long id) {
         try {
+            Assert.notNull(id, "Id cannot be null");
             Lesson lesson = lessonRepo.findById(id).get();
             Assert.notNull(lesson, "Lesson not found.");
             return lesson;
@@ -54,7 +62,7 @@ public class LessonService {
     public List<LessonDTO> getLessons() {
         List<LessonDTO> lessonsList = new ArrayList<>();
         lessonRepo.findAll().forEach(lesson -> {
-            LessonDTO lessonResponse = lessonMapper.toDto(lesson);
+            LessonDTO lessonResponse = lessonMapper.toDtoNoAttendance(lesson);
             lessonsList.add(lessonResponse);
         });
         return lessonsList;
@@ -65,13 +73,15 @@ public class LessonService {
             return getLessons();
         }
         List<LessonDTO> lessonDTOList = new ArrayList<>();
-        lessonRepo.findByNameContainingIgnoreCase(searchTerm.get()).forEach(lesson -> lessonDTOList.add(lessonMapper.toDto(lesson)));
+        lessonRepo.findByNameContainingIgnoreCase(searchTerm.get()).forEach(lesson -> lessonDTOList.add(lessonMapper.toDtoNoAttendance(lesson)));
         return lessonDTOList;
     }
 
-    public void deleteLesson(Long id) {
+    public void deleteLesson(Long lessonId) {
         try {
-            lessonRepo.deleteById(id);
+            List<Curriculum> curriculumList = curriculumRepo.findAllByLessonId(lessonId);
+            curriculumList.forEach(curriculum -> courseService.deleteCurriculumAndAttendances(curriculum));
+            lessonRepo.deleteById(lessonId);
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");

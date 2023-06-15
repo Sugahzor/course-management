@@ -1,9 +1,6 @@
 package com.nexttech.coursemanagement.services;
 
-import com.nexttech.coursemanagement.DTOs.LessonDTO;
-import com.nexttech.coursemanagement.DTOs.UserDTO;
-import com.nexttech.coursemanagement.DTOs.UserEnrollDTO;
-import com.nexttech.coursemanagement.DTOs.UserLoginDTO;
+import com.nexttech.coursemanagement.DTOs.*;
 import com.nexttech.coursemanagement.mappers.UserMapper;
 import com.nexttech.coursemanagement.models.Course;
 import com.nexttech.coursemanagement.models.User;
@@ -16,10 +13,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -71,8 +65,7 @@ public class UserService {
             Assert.isTrue(user.isPresent(), "User not found.");
             Assert.notNull(course, "Course not found.");
             if (user.get().getCourses().contains(course)) {
-                System.out.println("User is already enrolled in this course");
-                return;
+                throw new BadRequestException("User is already enrolled in this course");
             }
             user.get().enrollToCourse(course);
             //create user's attendance for each lesson in the course
@@ -82,6 +75,9 @@ public class UserService {
         catch(IllegalArgumentException exception) {
             System.out.println(exception.getMessage() + "IllegalArgumentException service");
             throw new BadRequestException(exception.getLocalizedMessage());
+        }
+        catch(BadRequestException exception) {
+            throw new BadRequestException(exception.getMessage());
         }
     }
 
@@ -131,6 +127,10 @@ public class UserService {
 
     public void deleteUser(Long id) {
         try {
+            User user = userRepo.findById(id).get();
+            List<Course> toRemove = new ArrayList<>();
+            user.getCourses().forEach(course -> toRemove.add(course));
+            toRemove.forEach(course -> user.disenrollFromCourse(course));
             userRepo.deleteById(id);
         }
         catch(IllegalArgumentException exception) {
@@ -152,6 +152,24 @@ public class UserService {
         }
         catch(EmptyResultDataAccessException exception){
             throw new MyResourceNotFoundException("User not found");
+        }
+    }
+
+    public List<CourseResponseDTO> getCoursesWithLessonsByUser(Long userId) {
+        try {
+            Assert.notNull(userId, "User id cannot be null.");
+            List<CourseResponseDTO> courseResponseDTOList = new ArrayList<>();
+            User user = getUserById(userId);
+            Set<Course> userCourses = user.getCourses();
+            Assert.notNull(userCourses, "User has no courses.");
+            userCourses.forEach(course ->
+                    courseResponseDTOList.add(new CourseResponseDTO(course.getId(), course.getCourseName(), course.getImageUrl(), curriculumService.getLessonsWithAttendance(course.getId(), userId)))
+            );
+            return courseResponseDTOList;
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
         }
     }
 }

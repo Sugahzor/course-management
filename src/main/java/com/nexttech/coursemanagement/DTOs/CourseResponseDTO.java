@@ -4,13 +4,19 @@ import org.springframework.hateoas.RepresentationModel;
 
 import java.util.List;
 
-public class CurriculaResponseDTO extends RepresentationModel<CurriculaResponseDTO> {
+public class CourseResponseDTO extends RepresentationModel<CourseResponseDTO> {
     Long courseId;
     String courseName;
     String imageUrl;
     List<LessonDTO> lessonDTOList;
 
-    public CurriculaResponseDTO(Long courseId, String courseName, String imageUrl, List<LessonDTO> lessonDTOList) {
+    public CourseResponseDTO(Long courseId, String courseName, String imageUrl) {
+        this.courseId = courseId;
+        this.courseName = courseName;
+        this.imageUrl = imageUrl;
+    }
+
+    public CourseResponseDTO(Long courseId, String courseName, String imageUrl, List<LessonDTO> lessonDTOList) {
         this.courseId = courseId;
         this.courseName = courseName;
         this.imageUrl = imageUrl;
@@ -48,4 +54,5 @@ public class CurriculaResponseDTO extends RepresentationModel<CurriculaResponseD
     public void setLessonDTOList(List<LessonDTO> lessonDTOList) {
         this.lessonDTOList = lessonDTOList;
     }
+
 }

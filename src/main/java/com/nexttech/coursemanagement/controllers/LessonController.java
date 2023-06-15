@@ -3,7 +3,6 @@ package com.nexttech.coursemanagement.controllers;
 import com.nexttech.coursemanagement.DTOs.LessonCreationDTO;
 import com.nexttech.coursemanagement.DTOs.LessonDTO;
 import com.nexttech.coursemanagement.mappers.LessonMapper;
-import com.nexttech.coursemanagement.repositories.LessonRepo;
 import com.nexttech.coursemanagement.services.LessonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
@@ -37,7 +36,7 @@ public class LessonController {
     @GetMapping("/{id}")
     @ResponseBody
     public LessonDTO getById(@PathVariable("id") Long id) {
-        return lessonMapper.toDto(lessonService.getLesson(id));
+        return lessonMapper.toDtoNoAttendance(lessonService.getLesson(id));
     }
 
     @PostMapping
