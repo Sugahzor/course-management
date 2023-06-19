@@ -122,4 +122,16 @@ public class UserController {
     public UserDTO getUserByUserEmail(@PathVariable final String userEmail) {
         return mapper.toDto(userService.getUserByUserEmail(userEmail));
     }
+
+    @PutMapping(value = "/change/email")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeUserEmail(@RequestBody UserChangeEmailDTO userChangeEmailDTO) {
+        userService.changeUserEmail(userChangeEmailDTO);
+    }
+
+    @PutMapping(value = "/change/password")
+    @ResponseStatus(HttpStatus.OK)
+    public void changeUserPassword(@RequestBody UserChangePasswordDTO userChangePasswordDTO) {
+        userService.changeUserPassword(userChangePasswordDTO);
+    }
 }

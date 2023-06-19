@@ -172,4 +172,36 @@ public class UserService {
             throw exception;
         }
     }
+
+    public void changeUserEmail(UserChangeEmailDTO userChangeEmailDTO) {
+        try {
+            User user = userRepo.findById(userChangeEmailDTO.getUserId()).get();
+            user.setUserEmail(userChangeEmailDTO.getNewUserEmail());
+            userRepo.save(user);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
+        catch(NoSuchElementException exception) {
+            System.out.println("NoSuchElementException catch: " + exception.getMessage());
+            throw exception;
+        }
+    }
+
+    public void changeUserPassword(UserChangePasswordDTO userChangePasswordDTO) {
+        try{
+            User user = userRepo.findById(userChangePasswordDTO.getUserid()).get();
+            user.setUserPassword(userChangePasswordDTO.getNewUserPassword());
+            userRepo.save(user);
+        }
+        catch(IllegalArgumentException exception) {
+            System.out.println("IllegalArgumentException caught ok");
+            throw exception;
+        }
+        catch(NoSuchElementException exception) {
+            System.out.println("NoSuchElementException catch: " + exception.getMessage());
+            throw exception;
+        }
+    }
 }
