@@ -131,7 +131,7 @@ public class UserController {
 
     @PutMapping(value = "/change/password")
     @ResponseStatus(HttpStatus.OK)
-    public void changeUserPassword(@RequestBody UserChangePasswordDTO userChangePasswordDTO) {
+    public void changeUserPassword(@RequestBody UserChangePasswordDTO userChangePasswordDTO) throws BadRequestException{
         userService.changeUserPassword(userChangePasswordDTO);
     }
 }

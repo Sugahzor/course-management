@@ -43,7 +43,6 @@ public class UserService {
             User loginUser = userRepo.findByUserEmail(userLoginDTO.getUserEmail()); //shouldn't this throw IllegalArgumentException??
             Assert.notNull(loginUser, "Email not found.");
             if (userLoginDTO.getUserPassword().equals(loginUser.getUserPassword())) {
-                System.out.println("User login successful");
                 return userMapper.toDto(loginUser);
             } else {
                 throw new BadRequestException("Please check password.");
@@ -175,9 +174,10 @@ public class UserService {
 
     public void changeUserEmail(UserChangeEmailDTO userChangeEmailDTO) {
         try {
-            User user = userRepo.findById(userChangeEmailDTO.getUserId()).get();
-            user.setUserEmail(userChangeEmailDTO.getNewUserEmail());
-            userRepo.save(user);
+            Optional<User> user = userRepo.findById(userChangeEmailDTO.getUserId());
+            Assert.isTrue(user.isPresent(), "User not found.");
+            user.get().setUserEmail(userChangeEmailDTO.getNewUserEmail());
+            userRepo.save(user.get());
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");
@@ -189,11 +189,16 @@ public class UserService {
         }
     }
 
-    public void changeUserPassword(UserChangePasswordDTO userChangePasswordDTO) {
+    public void changeUserPassword(UserChangePasswordDTO userChangePasswordDTO) throws BadRequestException{
         try{
-            User user = userRepo.findById(userChangePasswordDTO.getUserid()).get();
-            user.setUserPassword(userChangePasswordDTO.getNewUserPassword());
-            userRepo.save(user);
+            Optional<User> user = userRepo.findById(userChangePasswordDTO.getUserid());
+            Assert.isTrue(user.isPresent(), "User not found.");
+            if (user.get().getUserPassword().equals(userChangePasswordDTO.getOldUserPassword())) {
+                user.get().setUserPassword(userChangePasswordDTO.getNewUserPassword());
+                userRepo.save(user.get());
+            } else {
+                throw new BadRequestException("Old password doesn't match.");
+            }
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");
@@ -201,6 +206,9 @@ public class UserService {
         }
         catch(NoSuchElementException exception) {
             System.out.println("NoSuchElementException catch: " + exception.getMessage());
+            throw exception;
+        }
+        catch(BadRequestException exception) {
             throw exception;
         }
     }
