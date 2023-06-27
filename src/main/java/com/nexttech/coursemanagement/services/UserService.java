@@ -57,7 +57,7 @@ public class UserService {
         }
     }
 
-    public void enrollUser(UserEnrollDTO userEnrollDTO) throws BadRequestException{
+    public UserEnrollResponseDTO enrollUser(UserEnrollDTO userEnrollDTO) throws BadRequestException{
         try {
             Course course = courseService.getCourse(userEnrollDTO.courseId);
             Optional<User> user = userRepo.findById(userEnrollDTO.userId);
@@ -70,6 +70,7 @@ public class UserService {
             //create user's attendance for each lesson in the course
             List<LessonDTO> lessonDTOList = curriculumService.getLessonsByCourseId(course.getId());
             lessonDTOList.forEach(lesson -> attendanceService.addAttendance(user.get().getId(), course.getId(), lesson.getId()));
+            return new UserEnrollResponseDTO(user.get().getId(), course.getId(), true);
         }
         catch(IllegalArgumentException exception) {
             System.out.println(exception.getMessage() + "IllegalArgumentException service");
