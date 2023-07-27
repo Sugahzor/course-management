@@ -96,8 +96,8 @@ public class UserController {
     @PostMapping(value = "/disenroll")
     @ResponseStatus(HttpStatus.OK)
     @Transactional
-    public void disenrollFromCourse(@RequestBody UserEnrollDTO userEnrollDTO) throws BadRequestException{
-        userService.disenrollFromCourse(userEnrollDTO);
+    public UserEnrollResponseDTO disenrollFromCourse(@RequestBody UserEnrollDTO userEnrollDTO) throws BadRequestException{
+        return userService.disenrollFromCourse(userEnrollDTO);
     }
 
     @GetMapping(value = "/{id}/curricula")

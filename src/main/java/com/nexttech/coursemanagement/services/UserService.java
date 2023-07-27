@@ -81,7 +81,7 @@ public class UserService {
         }
     }
 
-    public void disenrollFromCourse(UserEnrollDTO userEnrollDTO) throws BadRequestException{
+    public UserEnrollResponseDTO disenrollFromCourse(UserEnrollDTO userEnrollDTO) throws BadRequestException{
         try {
             Optional<User> user = userRepo.findById(userEnrollDTO.userId);
             Course course = courseService.getCourse(userEnrollDTO.courseId);
@@ -90,6 +90,7 @@ public class UserService {
             attendanceService.removeAttendances(userEnrollDTO.courseId, userEnrollDTO.userId);
             //TODO: remove all homeworks
             user.get().disenrollFromCourse(course);
+            return new UserEnrollResponseDTO(user.get().getId(), course.getId(), false);
         }
         catch(IllegalArgumentException exception) {
             System.out.println(exception.getMessage() + "IllegalArgumentException service");
