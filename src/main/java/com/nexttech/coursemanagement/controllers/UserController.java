@@ -33,7 +33,7 @@ public class UserController {
     @Autowired @Lazy
     private CurriculumService curriculumService;
 
-    @PostMapping("register")
+    @PostMapping()
     @ResponseStatus(HttpStatus.OK)
     public void register(@RequestBody RegisterUserRequestDTO request) {
         this.userService.registerUser(request);
