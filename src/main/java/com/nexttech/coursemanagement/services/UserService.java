@@ -49,10 +49,10 @@ public class UserService {
         userRepo.save(user);
     }
 
-    public UserEnrollResponseDTO enrollUser(UserEnrollDTO userEnrollDTO) throws BadRequestException{
+    public UserEnrollResponseDTO enrollUser(String username, Long courseId) throws BadRequestException{
         try {
-            Course course = courseService.getCourse(userEnrollDTO.courseId);
-            Optional<User> user = userRepo.findById(userEnrollDTO.userId);
+            Course course = courseService.getCourse(courseId);
+            Optional<User> user = userRepo.findByUserName(username);
             Assert.isTrue(user.isPresent(), "User not found.");
             Assert.notNull(course, "Course not found.");
             if (user.get().getCourses().contains(course)) {
@@ -62,7 +62,7 @@ public class UserService {
             //create user's attendance for each lesson in the course
             List<LessonDTO> lessonDTOList = curriculumService.getLessonsByCourseId(course.getId());
             lessonDTOList.forEach(lesson -> attendanceService.addAttendance(user.get().getId(), course.getId(), lesson.getId()));
-            return new UserEnrollResponseDTO(user.get().getId(), course.getId(), true);
+            return new UserEnrollResponseDTO(course.getId(), true);
         }
         catch(IllegalArgumentException exception) {
             System.out.println(exception.getMessage() + "IllegalArgumentException service");
@@ -73,16 +73,16 @@ public class UserService {
         }
     }
 
-    public UserEnrollResponseDTO disenrollFromCourse(UserEnrollDTO userEnrollDTO) throws BadRequestException{
+    public UserEnrollResponseDTO disenrollFromCourse(String username, Long courseId) throws BadRequestException{
         try {
-            Optional<User> user = userRepo.findById(userEnrollDTO.userId);
-            Course course = courseService.getCourse(userEnrollDTO.courseId);
+            Optional<User> user = userRepo.findByUserName(username);
+            Course course = courseService.getCourse(courseId);
             Assert.isTrue(user.isPresent(), "User not found.");
             Assert.notNull(course, "Course not found.");
-            attendanceService.removeAttendances(userEnrollDTO.courseId, userEnrollDTO.userId);
+            attendanceService.removeAttendances(courseId, user.get().getId());
             //TODO: remove all homeworks
             user.get().disenrollFromCourse(course);
-            return new UserEnrollResponseDTO(user.get().getId(), course.getId(), false);
+            return new UserEnrollResponseDTO(course.getId(), false);
         }
         catch(IllegalArgumentException exception) {
             System.out.println(exception.getMessage() + "IllegalArgumentException service");

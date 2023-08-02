@@ -1,22 +1,12 @@
 package com.nexttech.coursemanagement.DTOs;
 
 public class UserEnrollResponseDTO {
-    public Long userId;
     public Long courseId;
     boolean enrolled;
 
-    public UserEnrollResponseDTO(Long userId, Long courseId, boolean enrolled) {
-        this.userId = userId;
+    public UserEnrollResponseDTO(Long courseId, boolean enrolled) {
         this.courseId = courseId;
         this.enrolled = enrolled;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public Long getCourseId() {

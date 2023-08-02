@@ -46,6 +46,24 @@ public class UserController {
                 .body(userService.getByUsername(principal.getUsername()));
     }
 
+    @GetMapping(value = "/enroll/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional
+    public ResponseEntity<UserEnrollResponseDTO> enroll(@Parameter(hidden = true) @AuthenticationPrincipal AppUserPrincipal principal, @PathVariable("id") Long courseId) throws BadRequestException{
+        return ResponseEntity
+                .ok()
+                .body(userService.enrollUser(principal.getUsername(), courseId));
+    }
+
+    @GetMapping(value = "/disenroll/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    @Transactional
+    public ResponseEntity<UserEnrollResponseDTO> disenrollFromCourse(@Parameter(hidden = true) @AuthenticationPrincipal AppUserPrincipal principal, @PathVariable("id") Long courseId) throws BadRequestException{
+        return ResponseEntity
+                .ok()
+                .body(userService.disenrollFromCourse(principal.getUsername(), courseId));
+    }
+
     @GetMapping
     @ResponseBody
     public List<UserDTO> getUsersByRole(@RequestParam(required=false) Optional<String> role) {
@@ -53,20 +71,6 @@ public class UserController {
                 .stream()
                 .map(mapper::toDto)
                 .collect(toList());
-    }
-
-    @PostMapping(value = "/enroll")
-    @ResponseStatus(HttpStatus.OK)
-    @Transactional
-    public UserEnrollResponseDTO enroll(@RequestBody UserEnrollDTO userEnrollDTO) throws BadRequestException{
-        return userService.enrollUser(userEnrollDTO);
-    }
-
-    @PostMapping(value = "/disenroll")
-    @ResponseStatus(HttpStatus.OK)
-    @Transactional
-    public UserEnrollResponseDTO disenrollFromCourse(@RequestBody UserEnrollDTO userEnrollDTO) throws BadRequestException{
-        return userService.disenrollFromCourse(userEnrollDTO);
     }
 
     @GetMapping(value = "/{id}/curricula")
