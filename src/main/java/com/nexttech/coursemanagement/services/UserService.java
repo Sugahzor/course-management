@@ -154,24 +154,6 @@ public class UserService {
                 .orElseThrow();
     }
 
-    public List<CourseResponseDTO> getCoursesWithLessonsByUser(Long userId) {
-        try {
-            Assert.notNull(userId, "User id cannot be null.");
-            List<CourseResponseDTO> courseResponseDTOList = new ArrayList<>();
-            User user = getUserById(userId);
-            Set<Course> userCourses = user.getCourses();
-            Assert.notNull(userCourses, "User has no courses.");
-            userCourses.forEach(course ->
-                    courseResponseDTOList.add(new CourseResponseDTO(course.getId(), course.getCourseName(), course.getImageUrl(), curriculumService.getLessonsWithAttendance(course.getId(), userId)))
-            );
-            return courseResponseDTOList;
-        }
-        catch(IllegalArgumentException exception) {
-            System.out.println("IllegalArgumentException caught ok");
-            throw exception;
-        }
-    }
-
     public void changeUserEmail(UserChangeEmailDTO userChangeEmailDTO) {
         try {
             Optional<User> user = userRepo.findById(userChangeEmailDTO.getUserId());

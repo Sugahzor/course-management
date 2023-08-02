@@ -73,12 +73,6 @@ public class UserController {
                 .collect(toList());
     }
 
-    @GetMapping(value = "/{id}/curricula")
-    @ResponseStatus(HttpStatus.OK)
-    public List<CourseResponseDTO> getUserCurricula(@PathVariable("id") Long userId) {
-        return userService.getCoursesWithLessonsByUser(userId);
-    }
-
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteUser(@PathVariable("id") Long id) {
