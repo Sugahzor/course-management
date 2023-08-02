@@ -42,7 +42,7 @@ public class JwtUtil {
 
     public boolean validateAccessToken(String token) {
         try {
-            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJwt(token);
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
             return true;
         }
         catch (ExpiredJwtException ex) {
@@ -71,7 +71,7 @@ public class JwtUtil {
     public Claims parseClaims(String token) {
         return Jwts.parser()
                 .setSigningKey(SECRET_KEY)
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody();
     }
 

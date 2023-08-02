@@ -10,6 +10,7 @@ import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -28,33 +29,24 @@ public class UserService {
     @Autowired @Lazy
     private AttendanceService attendanceService;
 
-    public void register(User user) throws BadRequestException{
-        try {
-            Assert.isNull(userRepo.findByUserEmail(user.getUserEmail()), "User already exists");
-            userRepo.save(user);
-        }
-        catch(IllegalArgumentException exception) {
-            throw new BadRequestException(exception.getMessage());
-        }
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public UserDTO login(UserLoginDTO userLoginDTO) throws BadRequestException{
-        try {
-            User loginUser = userRepo.findByUserEmail(userLoginDTO.getUserEmail()); //shouldn't this throw IllegalArgumentException??
-            Assert.notNull(loginUser, "Email not found.");
-            if (userLoginDTO.getUserPassword().equals(loginUser.getUserPassword())) {
-                return userMapper.toDto(loginUser);
-            } else {
-                throw new BadRequestException("Please check password.");
-            }
+    public void registerUser(RegisterUserRequestDTO request) {
+        if (this.userRepo.findByUserName(request.getUserName()).isPresent()) {
+            throw new RuntimeException("Username taken.");
         }
-        catch(IllegalArgumentException exception) {
-            System.out.println(exception.getMessage() + "IllegalArgumentException service");
-            throw new BadRequestException(exception.getLocalizedMessage());
-        }
-        catch(BadRequestException exception) {
-            throw new BadRequestException("Please check password.");
-        }
+        // TODO: userRole set to default by the mapper - maybe not the best approach; refactor if needed
+        User user = userMapper.toUser(request);
+        user.setUserPassword(passwordEncoder.encode(request.getUserPassword()));
+
+        //TODO: our model only needs 1 role / user
+        // default role for new users
+//        RoleEntity role = roleRepository
+//                .findById(RoleConstants.USER)
+//                .orElseThrow();
+//        userEntity.setRoles(new HashSet<>(Collections.singleton(role)));
+        userRepo.save(user);
     }
 
     public UserEnrollResponseDTO enrollUser(UserEnrollDTO userEnrollDTO) throws BadRequestException{
@@ -154,6 +146,12 @@ public class UserService {
         catch(EmptyResultDataAccessException exception){
             throw new MyResourceNotFoundException("User not found");
         }
+    }
+
+    public UserDTO getByUsername(String username) {
+        return this.userRepo.findByUserName(username)
+                .map(this.userMapper::toDto)
+                .orElseThrow();
     }
 
     public List<CourseResponseDTO> getCoursesWithLessonsByUser(Long userId) {
