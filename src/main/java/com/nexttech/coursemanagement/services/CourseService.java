@@ -12,7 +12,9 @@ import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.CourseRepo;
 import com.nexttech.coursemanagement.repositories.CurriculumRepo;
 import com.nexttech.coursemanagement.repositories.LessonRepo;
+import com.nexttech.coursemanagement.repositories.UserRepo;
 import com.nexttech.coursemanagement.util.BadRequestException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -21,11 +23,12 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 @Service
+@Slf4j
 public class CourseService {
     @Autowired
     private CourseRepo courseRepo;
-    @Autowired @Lazy
-    private UserService userService;
+    @Autowired
+    private UserRepo userRepo;
     @Autowired
     private CourseMapper courseMapper;
     @Autowired
@@ -39,11 +42,11 @@ public class CourseService {
     @Autowired @Lazy
     private AttendanceService attendanceService;
 
-    public CourseResponseDTO addCourse(String name, String imgUrl, Long userId) throws BadRequestException {
+    public CourseResponseDTO addCourse(String name, String imgUrl, String username) throws BadRequestException {
         try {
             Assert.hasLength(name, "Please provide course name.");
             Course existingCourse = courseRepo.findByCourseName(name);
-            User existingUser = userService.getUserById(userId);
+            User existingUser = userRepo.findByUserName(username).get();
             if (existingCourse == null && existingUser != null) {
                 Course newCourse = new Course(name, imgUrl, existingUser);
                 courseRepo.save(newCourse);
@@ -51,6 +54,10 @@ public class CourseService {
             } else {
                 throw new BadRequestException("Course already exists.");
             }
+        }
+        catch (NoSuchElementException exception) {
+            log.error("User not found");
+            throw exception;
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");

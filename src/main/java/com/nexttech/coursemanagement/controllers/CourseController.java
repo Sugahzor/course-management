@@ -3,12 +3,14 @@ package com.nexttech.coursemanagement.controllers;
 import com.nexttech.coursemanagement.DTOs.CourseCreationDTO;
 import com.nexttech.coursemanagement.DTOs.CourseResponseDTO;
 import com.nexttech.coursemanagement.DTOs.CurriculumCreationDTO;
-import com.nexttech.coursemanagement.mappers.CourseMapper;
+import com.nexttech.coursemanagement.models.AppUserPrincipal;
 import com.nexttech.coursemanagement.services.CourseService;
 import com.nexttech.coursemanagement.util.BadRequestException;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,8 +45,8 @@ public class CourseController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    CourseResponseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO) throws BadRequestException {
-        CourseResponseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getImageUrl(), courseCreationDTO.getUserId());
+    CourseResponseDTO addCourse(@RequestBody CourseCreationDTO courseCreationDTO, @Parameter(hidden = true) @AuthenticationPrincipal AppUserPrincipal principal) throws BadRequestException {
+        CourseResponseDTO courseResponse = courseService.addCourse(courseCreationDTO.getName(), courseCreationDTO.getImageUrl(), principal.getUsername());
         Link selfLink = linkTo(CourseController.class).slash(courseResponse.getCourseId()).withSelfRel();
         courseResponse.add(selfLink);
         return courseResponse;

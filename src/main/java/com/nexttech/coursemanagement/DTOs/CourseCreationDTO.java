@@ -3,7 +3,6 @@ package com.nexttech.coursemanagement.DTOs;
 public class CourseCreationDTO {
     String name;
     String imageUrl;
-    Long userId;
 
     public String getName() {
         return name;
@@ -21,11 +20,4 @@ public class CourseCreationDTO {
         this.imageUrl = imageUrl;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
 }
