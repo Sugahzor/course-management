@@ -8,6 +8,8 @@ import com.nexttech.coursemanagement.models.Lesson;
 import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.CurriculumRepo;
 import com.nexttech.coursemanagement.repositories.LessonRepo;
+import com.nexttech.coursemanagement.repositories.UserRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -15,14 +17,16 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
+@Slf4j
 public class LessonService {
     @Autowired
     private LessonRepo lessonRepo;
     @Autowired
-    private UserService userService;
+    private UserRepo userRepo;
     @Autowired
     private LessonMapper lessonMapper;
     @Autowired @Lazy
@@ -30,15 +34,19 @@ public class LessonService {
     @Autowired @Lazy
     private CourseService courseService;
 
-    public LessonDTO addLesson(LessonCreationDTO lessonCreationDTO) {
+    public LessonDTO addLesson(LessonCreationDTO lessonCreationDTO, String username) {
         try {
-            User user = userService.getUserById(lessonCreationDTO.getUserId());
+            User user = userRepo.findByUserName(username).orElseThrow();
             Assert.hasLength(lessonCreationDTO.getName(), "Lesson name cannot be empty");
             Assert.notNull(lessonCreationDTO.getContent(), "Lesson must have content.");
             Lesson lesson = new Lesson(lessonCreationDTO.getName(), lessonCreationDTO.getContent(), user);
             lessonRepo.save(lesson);
             LessonDTO lessonResponse = lessonMapper.toDtoNoAttendance(lesson);
             return lessonResponse;
+        }
+        catch (NoSuchElementException exception) {
+            log.error("User not found");
+            throw exception;
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");

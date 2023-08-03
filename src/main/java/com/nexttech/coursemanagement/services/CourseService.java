@@ -46,7 +46,7 @@ public class CourseService {
         try {
             Assert.hasLength(name, "Please provide course name.");
             Course existingCourse = courseRepo.findByCourseName(name);
-            User existingUser = userRepo.findByUserName(username).get();
+            User existingUser = userRepo.findByUserName(username).orElseThrow();
             if (existingCourse == null && existingUser != null) {
                 Course newCourse = new Course(name, imgUrl, existingUser);
                 courseRepo.save(newCourse);

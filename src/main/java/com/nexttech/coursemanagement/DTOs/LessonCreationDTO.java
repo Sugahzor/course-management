@@ -3,7 +3,6 @@ package com.nexttech.coursemanagement.DTOs;
 public class LessonCreationDTO {
     String name;
     Byte[] content;
-    Long userId;
 
 
     public String getName() {
@@ -20,13 +19,5 @@ public class LessonCreationDTO {
 
     public void setContent(Byte[] content) {
         this.content = content;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 }

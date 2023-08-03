@@ -76,7 +76,7 @@ public class UserController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteUser(@PathVariable("id") Long id) {
-        //TODO: should parameter id be string or Long?
+        //TODO: add to security antMatchers
         try {
             userService.deleteUser(id);
         }

@@ -3,10 +3,13 @@ package com.nexttech.coursemanagement.controllers;
 import com.nexttech.coursemanagement.DTOs.LessonCreationDTO;
 import com.nexttech.coursemanagement.DTOs.LessonDTO;
 import com.nexttech.coursemanagement.mappers.LessonMapper;
+import com.nexttech.coursemanagement.models.AppUserPrincipal;
 import com.nexttech.coursemanagement.services.LessonService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,8 +44,8 @@ public class LessonController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    LessonDTO addLesson(@RequestBody LessonCreationDTO lessonCreationDTO) {
-        LessonDTO lessonResponse = lessonService.addLesson(lessonCreationDTO);
+    LessonDTO addLesson(@RequestBody LessonCreationDTO lessonCreationDTO, @Parameter(hidden = true) @AuthenticationPrincipal AppUserPrincipal principal) {
+        LessonDTO lessonResponse = lessonService.addLesson(lessonCreationDTO, principal.getUsername());
         Link selfLink = linkTo(LessonController.class).slash(lessonResponse.getId()).withSelfRel();
         lessonResponse.add(selfLink);
         return lessonResponse;

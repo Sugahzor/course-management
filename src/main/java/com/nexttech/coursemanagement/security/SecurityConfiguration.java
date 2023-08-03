@@ -1,8 +1,10 @@
 package com.nexttech.coursemanagement.security;
 
 import com.nexttech.coursemanagement.security.properties.CorsProperties;
+import com.nexttech.coursemanagement.util.RoleConstants;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -42,7 +44,16 @@ public class SecurityConfiguration {
         });
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests()
-                .antMatchers("/auth/login", "/auth/register", "/api/v1/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                //why did it allow /api/v1/users/info even if previously not added to permitted? => because it has token?
+                //why do enroll and disenroll work even if removing student role?
+                .antMatchers(
+                        "/api/v1/auth/login",
+                        "/api/v1/courses/**",
+                        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/users").hasRole(RoleConstants.ADMIN)
+                .antMatchers("/api/v1/users/info").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
+                .antMatchers("/api/v1/lessons").hasRole(RoleConstants.PROFESSOR)
+//                .antMatchers(HttpMethod.GET, "/api/v1/enroll", "/api/v1/disenroll").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT)
                 .anyRequest()
                 .authenticated();
         http.exceptionHandling()

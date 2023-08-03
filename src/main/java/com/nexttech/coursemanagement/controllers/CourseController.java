@@ -61,6 +61,7 @@ public class CourseController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
+    //TODO: add to security antMatchers
     public void deleteCourse(@PathVariable("id") Long courseId) {
         courseService.deleteCourse(courseId);
     }
