@@ -58,6 +58,10 @@ public class SecurityConfiguration {
                     .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
                 .antMatchers(HttpMethod.DELETE, "/api/v1/courses")
                     .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
+                .antMatchers(HttpMethod.POST, "/api/v1/lessons")
+                    .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
+                .antMatchers(HttpMethod.DELETE, "/api/v1/lessons")
+                    .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
                 .anyRequest()
                 .authenticated();
         http.exceptionHandling()
