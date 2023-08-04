@@ -44,16 +44,20 @@ public class SecurityConfiguration {
         });
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeHttpRequests()
-                //why did it allow /api/v1/users/info even if previously not added to permitted? => because it has token?
-                //why do enroll and disenroll work even if removing student role?
-                .antMatchers(
-                        "/api/v1/auth/login",
-                        "/api/v1/courses/**",
-                        "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/v1/users").hasRole(RoleConstants.ADMIN)
-                .antMatchers("/api/v1/users/info", "/api/v1/lessons").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
-                .antMatchers("/api/v1/lessons/**").hasRole(RoleConstants.PROFESSOR)
-//                .antMatchers(HttpMethod.GET, "/api/v1/enroll", "/api/v1/disenroll").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT)
+                .antMatchers("/api/v1/auth/login", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
+                    .permitAll()
+                .antMatchers(HttpMethod.POST, "/api/v1/users")
+                    .hasRole(RoleConstants.ADMIN)
+                .antMatchers("/api/v1/users/info")
+                    .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
+                .antMatchers(HttpMethod.GET, "/api/v1/courses", "/api/v1/lessons")
+                    .hasAnyRole(RoleConstants.ADMIN,RoleConstants.PROFESSOR, RoleConstants.STUDENT)
+                .antMatchers(HttpMethod.PUT, "/api/v1/courses")
+                    .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
+                .antMatchers(HttpMethod.POST, "/api/v1/courses")
+                    .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
+                .antMatchers(HttpMethod.DELETE, "/api/v1/courses")
+                    .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR)
                 .anyRequest()
                 .authenticated();
         http.exceptionHandling()
