@@ -51,8 +51,8 @@ public class SecurityConfiguration {
                         "/api/v1/courses/**",
                         "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/users").hasRole(RoleConstants.ADMIN)
-                .antMatchers("/api/v1/users/info").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
-                .antMatchers("/api/v1/lessons").hasRole(RoleConstants.PROFESSOR)
+                .antMatchers("/api/v1/users/info", "/api/v1/lessons").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
+                .antMatchers("/api/v1/lessons/**").hasRole(RoleConstants.PROFESSOR)
 //                .antMatchers(HttpMethod.GET, "/api/v1/enroll", "/api/v1/disenroll").hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT)
                 .anyRequest()
                 .authenticated();
