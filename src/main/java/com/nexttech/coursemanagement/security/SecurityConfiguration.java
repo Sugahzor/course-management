@@ -47,7 +47,7 @@ public class SecurityConfiguration {
                 .antMatchers("/api/v1/auth/login", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**")
                     .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/users")
-                    .hasRole(RoleConstants.ADMIN)
+                    .permitAll()
                 .antMatchers("/api/v1/users/info")
                     .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
                 .antMatchers(HttpMethod.GET, "/api/v1/courses", "/api/v1/lessons")
