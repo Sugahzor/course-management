@@ -7,6 +7,7 @@ import com.nexttech.coursemanagement.models.User;
 import com.nexttech.coursemanagement.repositories.UserRepo;
 import com.nexttech.coursemanagement.util.BadRequestException;
 import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -17,6 +18,7 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 @Service
+@Slf4j
 public class UserService {
     @Autowired
     private UserRepo userRepo;
@@ -97,6 +99,7 @@ public class UserService {
             List<User> userList = new ArrayList<>();
             //TODO: Warning:(90, 48) Lambda can be replaced with method reference
             userRepo.findAll().forEach(user -> userList.add(user));
+            userList.sort((user1, user2) -> CharSequence.compare(user1.getUserRole(), user2.getUserRole()));
             return userList;
         }
     }
@@ -191,6 +194,19 @@ public class UserService {
             throw exception;
         }
         catch(BadRequestException exception) {
+            throw exception;
+        }
+    }
+
+    public UserDTO updateRole(UserChangeRoleDTO request) {
+        try {
+            User user = userRepo.findById(request.getUserId()).orElseThrow();
+            user.setUserRole(request.getNewRole());
+            userRepo.save(user);
+            return userMapper.toDto(user);
+        }
+        catch (NoSuchElementException exception) {
+            log.error(exception.getMessage());
             throw exception;
         }
     }

@@ -48,6 +48,8 @@ public class SecurityConfiguration {
                     .permitAll()
                 .antMatchers(HttpMethod.POST, "/api/v1/users")
                     .permitAll()
+                .antMatchers(HttpMethod.DELETE, "/api/v1/users/{id}")
+                    .hasRole(RoleConstants.ADMIN)
                 .antMatchers("/api/v1/users/info")
                     .hasAnyRole(RoleConstants.ADMIN, RoleConstants.PROFESSOR, RoleConstants.STUDENT, RoleConstants.USER)
                 .antMatchers(HttpMethod.GET, "/api/v1/courses", "/api/v1/lessons")

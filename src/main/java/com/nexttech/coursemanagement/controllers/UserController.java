@@ -101,4 +101,12 @@ public class UserController {
     public void changeUserPassword(@RequestBody UserChangePasswordDTO userChangePasswordDTO) throws BadRequestException{
         userService.changeUserPassword(userChangePasswordDTO);
     }
+
+    @PutMapping(value = "/change/role")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<UserDTO> updateRole(@RequestBody UserChangeRoleDTO request, @Parameter(hidden = true) @AuthenticationPrincipal AppUserPrincipal principal) {
+        return ResponseEntity
+                .ok()
+                .body(userService.updateRole(request));
+    }
 }
