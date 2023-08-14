@@ -34,7 +34,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void registerUser(RegisterUserRequestDTO request) {
+    public UserDTO registerUser(RegisterUserRequestDTO request) {
         if (this.userRepo.findByUserName(request.getUserName()).isPresent()) {
             throw new RuntimeException("Username taken.");
         }
@@ -49,6 +49,7 @@ public class UserService {
 //                .orElseThrow();
 //        userEntity.setRoles(new HashSet<>(Collections.singleton(role)));
         userRepo.save(user);
+        return userMapper.toDto(user);
     }
 
     public UserEnrollResponseDTO enrollUser(String username, Long courseId) throws BadRequestException{

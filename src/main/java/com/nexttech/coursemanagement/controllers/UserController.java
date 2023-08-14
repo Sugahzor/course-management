@@ -35,8 +35,8 @@ public class UserController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
-    public void register(@RequestBody RegisterUserRequestDTO request) {
-        this.userService.registerUser(request);
+    public UserDTO register(@RequestBody RegisterUserRequestDTO request) {
+        return this.userService.registerUser(request);
     }
 
     @GetMapping("info")
