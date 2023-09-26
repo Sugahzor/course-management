@@ -3,10 +3,14 @@ package com.nexttech.coursemanagement.services;
 import com.nexttech.coursemanagement.DTOs.*;
 import com.nexttech.coursemanagement.mappers.UserMapper;
 import com.nexttech.coursemanagement.models.Course;
+import com.nexttech.coursemanagement.models.Lesson;
 import com.nexttech.coursemanagement.models.User;
+import com.nexttech.coursemanagement.repositories.CourseRepo;
+import com.nexttech.coursemanagement.repositories.LessonRepo;
 import com.nexttech.coursemanagement.repositories.UserRepo;
 import com.nexttech.coursemanagement.util.BadRequestException;
 import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
+import com.nexttech.coursemanagement.util.RoleConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -15,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.transaction.Transactional;
 import java.util.*;
 
 @Service
@@ -33,6 +38,12 @@ public class UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired @Lazy
+    private CourseRepo courseRepo;
+
+    @Autowired @Lazy
+    private LessonRepo lessonRepo;
 
     public UserDTO registerUser(RegisterUserRequestDTO request) {
         if (this.userRepo.findByUserName(request.getUserName()).isPresent()) {
@@ -122,20 +133,48 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         try {
-            User user = userRepo.findById(id).get();
-            List<Course> toRemove = new ArrayList<>();
-            user.getCourses().forEach(course -> toRemove.add(course));
-            toRemove.forEach(course -> user.disenrollFromCourse(course));
+            User user = userRepo.findById(id).orElseThrow();
+
+            //Remove enrollments and attendances for students
+            user.getCourses().forEach(course -> {
+                user.disenrollFromCourse(course);
+                attendanceService.removeAttendances(course.getId(), id);
+            });
+
+            //Remove user from Course/Lesson if he created it
+            User userToDelete = getUserById(id);
+            //If user gets demoted from PROFESSOR, when deleting him, the following code won't work => should we remove condition?
+            if(userToDelete.getUserRole().equals(RoleConstants.PROFESSOR)) {
+                List<User> admin = userRepo.findUsersByRole(RoleConstants.ADMIN);
+                List<Course> coursesCreatedBy = courseRepo.findByUserId(id);
+                List<Lesson> lessonsCreatedBy = lessonRepo.findByUserId(id);
+                if(!coursesCreatedBy.isEmpty()) {
+                    coursesCreatedBy.forEach(course -> {
+                        course.setUser(admin.get(0));
+                        courseRepo.save(course);
+                    });
+                }
+                if(!lessonsCreatedBy.isEmpty()) {
+                    lessonsCreatedBy.forEach(lesson -> {
+                        System.out.println(lesson.getUser().getUserName());
+                        lesson.setUser(admin.get(0));
+                        lessonRepo.save(lesson);
+                    });
+                }
+            }
+
             userRepo.deleteById(id);
+        }
+        catch(NoSuchElementException exception) {
+            System.out.println("NoSuchElementException caught ok - user not found");
+            throw exception;
         }
         catch(IllegalArgumentException exception) {
             System.out.println("IllegalArgumentException caught ok");
             throw exception;
-        }
-        catch(EmptyResultDataAccessException exception){
-            throw new MyResourceNotFoundException("User not found");
         }
     }
 

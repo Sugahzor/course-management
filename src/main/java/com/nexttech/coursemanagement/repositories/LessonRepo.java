@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface LessonRepo extends CrudRepository<Lesson, Long> {
     List<Lesson> findByNameContainingIgnoreCase(String searchTerm);
+    List<Lesson> findByUserId(Long id);
 }

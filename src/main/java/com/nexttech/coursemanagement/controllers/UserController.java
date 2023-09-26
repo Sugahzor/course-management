@@ -3,13 +3,11 @@ package com.nexttech.coursemanagement.controllers;
 import com.nexttech.coursemanagement.DTOs.*;
 import com.nexttech.coursemanagement.mappers.UserMapper;
 import com.nexttech.coursemanagement.models.AppUserPrincipal;
-import com.nexttech.coursemanagement.services.CurriculumService;
 import com.nexttech.coursemanagement.services.UserService;
 import com.nexttech.coursemanagement.util.BadRequestException;
 import com.nexttech.coursemanagement.util.MyResourceNotFoundException;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +28,6 @@ public class UserController {
     private UserService userService;
     @Autowired
     private UserMapper mapper;
-    @Autowired @Lazy
-    private CurriculumService curriculumService;
 
     @PostMapping()
     @ResponseStatus(HttpStatus.OK)
