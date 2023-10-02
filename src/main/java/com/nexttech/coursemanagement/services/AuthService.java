@@ -38,7 +38,8 @@ public class AuthService {
 
         final var user = (AppUserPrincipal) authentication.getPrincipal();
         final var jwt = jwtUtil.generateAccessToken(user);
-        return new LoginResponseDTO(jwt);
+        final var expiration = jwtUtil.getTime(jwt);
+        return new LoginResponseDTO(jwt, expiration);
     }
 
 //    @Transactional

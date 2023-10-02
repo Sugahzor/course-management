@@ -15,7 +15,8 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class JwtUtil {
-    private static final long EXPIRE_DURATION = 60 * 60 * 1000; // 1h
+//    private static final long EXPIRE_DURATION = 60 * 60 * 1000; // 1h
+private static final long EXPIRE_DURATION = 10 * 60 * 1000; // 10 min
     @Value("${app.jwt.secret}")
     private String SECRET_KEY;
 
@@ -66,6 +67,10 @@ public class JwtUtil {
 
     public String getSubject(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public Date getTime(String token) {
+        return parseClaims(token).getExpiration();
     }
 
     public Claims parseClaims(String token) {
